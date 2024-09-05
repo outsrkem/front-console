@@ -4,7 +4,7 @@
             <el-header class="header">
                     <div class="header-button">
                         <el-button link>欢迎您，{{ username }}</el-button>
-                        <el-button link style="margin-left: 20px;">个人中心</el-button>
+                        <el-button link style="margin-left: 20px;" @click="onUserCenter">个人中心</el-button>
                         <el-button link @click="Logout" style="margin-left: 20px;">退出</el-button>
                     </div>
             </el-header>
@@ -32,13 +32,10 @@ export default {
     name: 'HomeIndex',
     data() {
         return {
-            username: '账户名()',
+            username: '',
             links: [
-                { name: 'uias-devops', link: '/uias-devops/' },
-                { name: 'uias-devops', link: '/uias-devops/' },
-                { name: 'uias-devops', link: '/uias-devops/' },
-                { name: 'uias-devops', link: '/uias-devops/' },
-                { name: 'uias-devops', link: '/uias-devops/' },
+                { name: 'sre-devops', link: '/uias-devops/' },
+                { name: '身份认证中心', link: '/uias/' },
             ]
         }
     },
@@ -60,6 +57,9 @@ export default {
             this.$confirm('确认退出吗？', '退出提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
                 this.LoadLogOut()
             }).catch(() => {})
+        },
+        onUserCenter() {
+            this.$router.push({ path: '/accountInfo' })
         },
     },
     created() {

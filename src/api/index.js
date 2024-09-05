@@ -14,6 +14,6 @@ import ajax from '../api/ajax'
 /**
  * 用户登录
  */
-export const login = (data) => ajax('/uias/v1/user/signin', 'POST', null, data)
-export const logout = () => ajax('/uias/v1/user/logout', 'POST')
-export const basicInfo = () => ajax('/uias/v1/uias/user/basicInfo', 'GET', null, null)
+export const login = (data) => ajax('/api/uias/v1/user/signin', 'POST', null, data)
+export const logout = () => ajax('/api/uias/v1/user/logout', 'POST')
+export const basicInfo = () => ajax('/api/uias/v1/uias/user/basicInfo', 'GET', null, null)

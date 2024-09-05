@@ -6,7 +6,7 @@ import router from '@/router'
 import { ElMessage  } from 'element-plus'
 
 const request = axios.create({
-  // baseURL: 'http://ttapi.research.itcast.cn/' // 请求的基础路径
+//   baseURL: 'http://10.10.10.14:8080/' // 请求的基础路径
 })
 
 request.interceptors.request.use(
