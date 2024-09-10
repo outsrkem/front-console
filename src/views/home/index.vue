@@ -1,14 +1,15 @@
 <template>
+    <div class="header-container" style="width: 100%;">
+        <div class="header-button">
+            <span>欢迎您，{{ username }}</span>
+            <button  type="button" @click="onUserCenter">个人中心</button>
+            <button  type="button" @click="onToConsole">控制台</button>
+            <button  type="button" @click="Logout">退出</button>
+        </div>
+    </div>
     <div class="common-layout">
         <el-container>
-            <el-header class="header">
-                    <div class="header-button">
-                        <el-button link>欢迎您，{{ username }}</el-button>
-                        <el-button link style="margin-left: 20px;" @click="onUserCenter">个人中心</el-button>
-                        <el-button link @click="Logout" style="margin-left: 20px;">退出</el-button>
-                    </div>
-            </el-header>
-            <el-main>
+            <el-main class="main-content">
                 <div class="link-container">
                     <div class="list-page-wrap">
                         <div class="link"  v-for="item in links" :key="item.id">
@@ -24,7 +25,7 @@
         </el-container>
     </div>
 </template>
-          
+
 <script>
 import { logout } from '../../api'
 import { basicInfo } from '../../api'
@@ -34,8 +35,8 @@ export default {
         return {
             username: '',
             links: [
-                { name: 'sre-devops', link: '/uias-devops/' },
-                { name: '身份认证中心', link: '/uias/' },
+                { name: 'sre-devops', link: '/uias-devops' },
+                { name: '身份认证中心', link: '/uias' },
             ]
         }
     },
@@ -59,8 +60,15 @@ export default {
             }).catch(() => {})
         },
         onUserCenter() {
-            this.$router.push({ path: '/accountInfo' })
+            let wl = window.location
+            let accountInfoUrl = wl.protocol + '//' + wl.host + '/#/accountInfo'
+            window.location.assign(accountInfoUrl);
         },
+        onToConsole() {
+            let wl = window.location
+            let accountInfoUrl = wl.protocol + '//' + wl.host 
+            window.location.assign(accountInfoUrl);
+        }
     },
     created() {
         this.GetbasicInfo()
@@ -70,9 +78,6 @@ export default {
          
 <style scoped lang="less">
     .link-container {
-        // width: auto;
-        // text-align: center;
-        // border: 3px solid rgb(7, 112, 7);
         display: flex;
         justify-content: center; /* 水平居中 */  
         align-items: center; /* 垂直居中 */
@@ -80,7 +85,6 @@ export default {
     .list-page-wrap {
         margin-top: 50px;
         width: 85%;
-        // border: 3px solid red; /* 调试用，设置边框 */ 
         display: flex;
 
     }
@@ -97,34 +101,50 @@ export default {
         cursor: pointer;
     }
     .link:hover {  
-        /* 当鼠标悬停时，添加阴影效果 */  
+        /* 当鼠标悬停时，添加阴影效果 */
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     }
     .moved-down {  
-        transform: translateY(20px); /* 向下移动20px */  
+        transform: translateY(20px); /* 向下移动20px */
     } 
 
-    .block-link {  
-        display: block; /* 使 <a> 标签表现得像块级元素 */  
-        text-decoration: none; /* 移除下划线（如果需要） */  
-        color: inherit; /* 继承父元素的文本颜色（如果需要） */  
-        /* 可以添加更多样式以匹配你的网站设计 */  
-    }  
-    
-    .block-link h1 {  
-        /* 如果需要，可以添加特定于 <h1> 的样式 */
+    .block-link {
+        display: block; /* 使 <a> 标签表现得像块级元素 */
+        text-decoration: none; /* 移除下划线（如果需要） */
+        color: inherit; /* 继承父元素的文本颜色（如果需要） */
+    }
+    .block-link h1 {
         color: #000000;
     }
-    .header {
+    .common-layout {
+        min-height: 100vh; /* 使用 vh 单位来确保至少占据整个视口的高度 */
+        display: flex; /* 保持 Flexbox 布局，如果你的其他样式依赖于它 */
+        flex-direction: column; /* 如果需要的话，设置为列方向 */
+    }
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 垂直居中 */
+        align-items: center; /* 水平居中（如果需要）*/
+        height: 100%; /* 继承父元素的高度 */
+    }
+    .header-container {
         height: 38px;
         display: flex;
-        justify-content: center; /* 水平居中 */  
+        justify-content: center; /* 水平居中 */
         align-items: center; /* 垂直居中 */
         border-bottom: 1px solid #adb0b8;
         background-color: #d3dce6;
-        .header-button {
-            width: 55%;
+        .header-button button {
+            margin-left: 20px;
+            background: none; /* 移除背景 */
+            border: none; /* 移除边框 */
+            padding: 0; /* 移除内边距 */
+            font-family: inherit; /* 继承字体 */
+            font-size: inherit; /* 继承字体大小 */
+            color: inherit; /* 继承文字颜色 */
+            cursor: pointer; /* 鼠标悬停时显示指针 */
+            outline: none; /* 移除点击时的轮廓线 */
         }
     }
 </style>
-          

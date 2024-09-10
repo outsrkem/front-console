@@ -2,8 +2,8 @@
  * 基于 axios 封装的请求模块
  */
 import axios from 'axios'
-import router from '@/router'
-import { ElMessage  } from 'element-plus'
+// import router from '@/router'
+import { ElMessage,ElMessageBox  } from 'element-plus'
 
 const request = axios.create({
 //   baseURL: 'http://10.10.10.14:8080/' // 请求的基础路径
@@ -37,10 +37,13 @@ request.interceptors.response.use(function (response) {
     const { status } = error.response
     if (status === 401) {
         // 跳转到登录页面
-        // 清除本地存储中的用户登录状态
-        router.push('/login')
-        ElMessage.error('登录状态无效，请重新登录')
-        return error.response
+        ElMessageBox.confirm('登录状态无效，请重新登录', '登录提示',
+            { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning', draggable: true, }
+        ).then(() => {
+            window.location.href = `/login?service=${encodeURIComponent(window.location.href)}`;
+        }).catch(() => {
+            return error.response
+        })
     } else if (status === 403) {
         // token 无权限访问
         ElMessage({

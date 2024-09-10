@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app-home">
       <!-- 路由出口 -->
       <router-view/>
     </div>
