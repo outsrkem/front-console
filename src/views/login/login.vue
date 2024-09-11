@@ -19,45 +19,50 @@
           </el-form-item>
         </el-form>
       </div>
+      <el-dialog v-model="isTwoFactorPage" title="双因子验证" width="500">
+        <span>双因子验证</span>
+    </el-dialog>
     </div>
+
 </template>
           
  
 <script>
-  import { login } from '../../api'
+  import { login } from '@/api/index.js'
   
-  export default {
+export default {
     name: 'LoginIndex',
     components: {},
     props: {},
     data () {
-      return {
-        loginLoading: false, // 登录的 loading 状态
-        user: {
-          account: 'sys_svc_uias', // 登录名
-          password: '123456' // 密码
-        },
-        checked: true, // 是否同意协议的选中状态
-        // 表单验证规则配置
-        formLoginRules: {
-          account: [
-            {
-              required: true,
-              type: 'string',
-              message: '请输入用户名',
-              trigger: ['blur', 'change']
+        return {
+            loginLoading: false, // 登录的 loading 状态
+            user: {
+                account: 'admin', // 登录名
+                password: '123456' // 密码
+            },
+            checked: true, // 是否同意协议的选中状态
+            // 表单验证规则配置
+            formLoginRules: {
+            account: [
+                {
+                required: true,
+                type: 'string',
+                message: '请输入用户名',
+                trigger: ['blur', 'change']
+                }
+            ],
+            password: [
+                {
+                required: true,
+                type: 'string',
+                message: '请输入密码',
+                trigger: ['blur', 'change']
+                }
+                ],
+            isTwoFactorPage: false, // 二次验证
             }
-          ],
-          password: [
-            {
-              required: true,
-              type: 'string',
-              message: '请输入密码',
-              trigger: ['blur', 'change']
-            }
-          ]
         }
-      }
     },
     computed: {},
     watch: {},
@@ -66,36 +71,40 @@
     mounted () {
     },
     methods: {
-        onLogin () {
-            /**
-             * 表单验证， validate 方法是异步的,获取表单数据（根据接口要求绑定数据）
-             */
+        onLogin() {
+            // 表单验证， validate 方法是异步的,获取表单数据（根据接口要求绑定数据）
             this.$refs['login-form'].validate(valid => {
                 if (!valid) {
                     return
                 }
                 this.Login()// 验证通过，请求登录
             })
-      },
-        Login: async function () {
-            /**
-             * 表单验证通过，提交登录
-             */
+        },
+        toRedirectPath: function() {
+            // 登录后跳转到之前的页面，以下这种写法哈希模式路由不支持。
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectPath = urlParams.get('service');
+            if (redirectPath) {
+                window.location.assign(decodeURIComponent(redirectPath))
+                this.loginLoading = false
+            } else {
+                this.$router.push({ name: 'BasicIndex' }) /* 这个 name 是路由的名字 */
+                this.loginLoading = false
+            }
+        },
+        Login: function () {
+            // 表单验证通过，提交登录
             this.loginLoading = true
             const data = {"uias": this.user}
-            await login(data).then(() => {
-                // 登录后跳转到之前的页面，以下这种写法哈希模式路由不支持。
-                const urlParams = new URLSearchParams(window.location.search);
-                const redirectPath = urlParams.get('service');
-                console.log(urlParams)
-                console.log(redirectPath)
-                if (redirectPath) {
-                    window.location.assign(decodeURIComponent(redirectPath))
-                    this.loginLoading = false
-                } else {
-                    this.$router.push({ name: 'BasicIndex' }) /* 这个 name 是路由的名字 */
-                    this.loginLoading = false
-                }
+            login(data).then((res) => {
+                // if (res.meta_info.res_msg.payload.two_factor) { // 要二次验证
+                //     this.isTwoFactorPage = true;
+                //     console.log(this.isTwoFactorPage)
+                // } else {
+                //     this.toRedirectPath()  // 不进行二次验证
+                // }
+                console.log(res)
+                this.toRedirectPath()
             }).catch(err => {
                 this.loginLoading = false
                 this.$notify({ duration: 2000, title: '登录失败', message: err, type: 'error' })

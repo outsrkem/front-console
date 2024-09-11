@@ -28,10 +28,6 @@
                         <!-- <a>修改</a> -->
                     </div>
                     <div class="basic-info">
-                        <div class="label">账号类型</div>
-                        <div style="width: 300px;">{{userInfo.type}}</div>
-                    </div>
-                    <div class="basic-info">
                         <div class="label">注册时间</div>
                         <div style="width: 300px;">{{formatDate(userInfo.create_time)}}</div>
                     </div>
@@ -47,7 +43,7 @@
         
 <script>
 import { formatTime } from '@/utils/date.js'
-import { basicInfo } from '../../../api'
+import { basicInfo } from '@/api/index.js'
 export default {
 name: 'AccountInfoIndex',
     data() {

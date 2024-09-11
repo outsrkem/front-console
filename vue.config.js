@@ -1,6 +1,13 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
     transpileDependencies: true,
+    pages: {
+        index: 'src/views/console/main.js',
+        login: 'src/views/login/login.js',
+    },
+    configureWebpack: {
+        name: '多页面应用'
+    },
     devServer: {
         proxy: {
           '/': {

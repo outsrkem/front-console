@@ -17,7 +17,7 @@
                                 <div>
                                     <h1>{{ item.name }}</h1>
                                 </div>
-                            </a> 
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import { logout } from '../../api'
-import { basicInfo } from '../../api'
+import { logout } from '@/api/index.js'
+import { basicInfo } from '@/api/index.js'
 export default {
     name: 'HomeIndex',
     data() {
@@ -36,7 +36,7 @@ export default {
             username: '',
             links: [
                 { name: 'sre-devops', link: '/uias-devops' },
-                { name: '身份认证中心', link: '/uias' },
+                { name: '身份认证中心', link: '/uias/#/users' },
             ]
         }
     },
@@ -51,7 +51,7 @@ export default {
             await logout().then(() => {
                 window.sessionStorage.removeItem('active-path')
                 this.$cookies.remove('session');
-                this.$router.push('/login')
+                this.$router.push({name: 'login'})
             })
         },
         Logout() {
@@ -60,9 +60,10 @@ export default {
             }).catch(() => {})
         },
         onUserCenter() {
-            let wl = window.location
-            let accountInfoUrl = wl.protocol + '//' + wl.host + '/#/accountInfo'
-            window.location.assign(accountInfoUrl);
+            // let wl = window.location
+            // let accountInfoUrl = wl.protocol + '//' + wl.host + '/accountInfo'
+            // window.location.assign(accountInfoUrl);
+            this.$router.push({ name: 'AccountInfo' })
         },
         onToConsole() {
             let wl = window.location

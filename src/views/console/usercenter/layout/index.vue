@@ -36,20 +36,21 @@ export default {
     },
     methods: {
         onUserCenter() {
-            let wl = window.location
-            let accountInfoUrl = wl.protocol + '//' + wl.host + '/#/accountInfo'
-            window.location.assign(accountInfoUrl);
+            // 用户中心
+            this.$router.push({ name: 'AccountInfo' })
         },
         onToConsole() {
+            // 控制台
             let wl = window.location
             let accountInfoUrl = wl.protocol + '//' + wl.host
             window.location.assign(accountInfoUrl);
         },
         LoadLogOut: async function () {
+            // 退出
             await logout().then(() => {
                 window.sessionStorage.removeItem('active-path')
                 this.$cookies.remove('session');
-                this.$router.push('/login')
+                this.$router.push({name: 'login'})
             })
         },
         Logout() {
