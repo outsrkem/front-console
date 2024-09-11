@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { toLoginPage } from '@/utils/common.js'
 import { logout } from '@/api/index.js'
 import { basicInfo } from '@/api/index.js'
 export default {
@@ -43,7 +44,7 @@ export default {
     methods: {
         GetbasicInfo: async function () {
             const res = await basicInfo()
-            this.userInfo = JSON.stringify(res)
+            // this.userInfo = JSON.stringify(res)
             this.username = res.payload.userinfo.username
             window.sessionStorage.setItem('userBasicInfo', JSON.stringify(res.payload))
         },
@@ -51,7 +52,7 @@ export default {
             await logout().then(() => {
                 window.sessionStorage.removeItem('active-path')
                 this.$cookies.remove('session');
-                this.$router.push({name: 'login'})
+                toLoginPage()
             })
         },
         Logout() {

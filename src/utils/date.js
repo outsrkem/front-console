@@ -1,5 +1,8 @@
 // 时间格式过滤器
 export function formatTime(value) {
+    if (value === null || value === '' || value === undefined) {
+        return '--'
+    }
     const date = new Date(value)
     const y = date.getFullYear()
     let MM = date.getMonth() + 1

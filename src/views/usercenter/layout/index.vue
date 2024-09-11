@@ -21,6 +21,7 @@
 </template>
 <script>
 import AppAside from './aside'
+import { toLoginPage } from '@/utils/common.js'
 import { logout } from '@/api/index.js'
 export default {
     name: 'LayoutIndex',
@@ -50,7 +51,7 @@ export default {
             await logout().then(() => {
                 window.sessionStorage.removeItem('active-path')
                 this.$cookies.remove('session');
-                this.$router.push({name: 'login'})
+                toLoginPage()
             })
         },
         Logout() {

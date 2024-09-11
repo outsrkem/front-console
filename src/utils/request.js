@@ -37,7 +37,7 @@ request.interceptors.response.use(function (response) {
     const { status } = error.response
     if (status === 401) {
         // 跳转到登录页面
-        window.location.href = `/login.html?service=${encodeURIComponent(window.location.href)}`;
+        window.location.href = `/authui/login.html?service=${encodeURIComponent(window.location.href)}`;
         return error.response
     } else if (status === 403) {
         // token 无权限访问
