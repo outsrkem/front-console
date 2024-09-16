@@ -17,3 +17,20 @@ import ajax from '../api/ajax'
 export const login = (data) => ajax('/v1/user/signin', 'POST', null, data)
 export const logout = () => ajax('/v1/user/logout', 'POST')
 export const basicInfo = () => ajax('/v1/uias/user/basicInfo', 'GET', null, null)
+// 获取安全验证设备 /v1/uias/security/verification/device
+export const GetSecurityDevice = () => ajax('/v1/uias/security/verification/device', 'GET', null, null)
+// 创建VMFA设备 /v1/uias/vmfa/otp/devices
+export const CreateVmfa = () => ajax('/v1/uias/vmfa/otp/devices', 'POST')
+// 绑定VMFA设备 /v1/uias/vmfa/otp/bind
+export const BindVmfa = (data) => ajax('/v1/uias/vmfa/otp/bind', 'POST', null, data)
+
+// 校验验证码 /v1/uias/captcha/:schema/verify
+export const VerifyCaptcha = (patch, data) => ajax(`/v1/uias/captcha/${patch.schema}/verify`, 'POST', null, data)
+// /v1/uias/captcha/send?variety=email
+export const GetCaptcha = (params) => ajax('/v1/uias/captcha/send', 'GET', params)
+
+// 重置/解绑VMFA设备 /v1/uias/vmfa/otp/reset
+export const ResetVmfa = () => ajax('/v1/uias/vmfa/otp/reset', 'POST')
+
+// 修改用户信息 patch /v1/uias/user/basicInfo
+export const UpdateUserInfo = (data) => ajax('/v1/uias/user/basicInfo', 'PATCH', null, data)

@@ -8,7 +8,7 @@ module.exports = defineConfig({
     },
 
     configureWebpack: {
-        name: '多页面应用'
+        name: 'console'
     },
 
     devServer: {
@@ -21,7 +21,8 @@ module.exports = defineConfig({
               '^/uias': '/uias'
             }
           }
-        }
+        },
+        webSocketServer: false,
     },
 
     productionSourceMap: false,

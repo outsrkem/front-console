@@ -1,14 +1,17 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-const Home = () => import('../views/home/index.vue')
-const Layout = () => import('../views/usercenter/layout/index.vue')
-const AccountInfo = () => import('../views/usercenter/info/index.vue')
+const Layout = () => import(/* webpackChunkName: "882cf9546db5" */ '../views/layout/index.vue')
+const Home = () => import(/* webpackChunkName: "0394a6030e4b" */ '../views/home/index.vue')
+const UserCenter = () => import(/* webpackChunkName: "25a57435eb81" */ '../views/userCenter/index.vue')
+const Safety = () => import(/* webpackChunkName: "23023d6e49fe" */ '../views/userCenter/safety/safety.vue')
 
 const routes = [
-    { path: '/', meta: { title: '首页' }, name: 'BasicIndex', component: Home },
+    { meta: { title: 'Console - Mobile' }, path: '/mobile', name: 'homeMobile', component: Home },
     {
-        path: '/usercenter', meta: { title: '账号中心' }, component: Layout, children: [
-            { meta: { title: '服务管理' }, path: '/accountInfo', name: 'AccountInfo', component: AccountInfo },
+        path: '/', component: Layout, children: [
+            { meta: { title: '服务' }, path: '/', name: 'homePc', component: Home },
+            { meta: { title: '个人中心' }, path: '/accountInfo', name: 'userCenter', component: UserCenter },
+            { meta: { title: '个人中心' }, path: '/accountInfo/safety', name: 'safety', component: Safety },
         ]
     }
 ]

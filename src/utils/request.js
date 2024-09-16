@@ -38,18 +38,16 @@ request.interceptors.response.use(function (response) {
     if (status === 401) {
         // 跳转到登录页面
         window.location.href = `/authui/login.html?service=${encodeURIComponent(window.location.href)}`;
-        return error.response
+        return Promise.reject(error.response)
     } else if (status === 403) {
-        // token 无权限访问
-        ElMessage({
-            type: 'warning',
-            message: '没有操作权限'
-        })
+        return Promise.reject(error.response)
     } else if (status === 400) {
         // 客户端参数错误
         ElMessage.error('参数错误，请检查请求参数')
+        return Promise.reject(error.response)
     } else if (status >= 500) {
         ElMessage.error('服务端内部异常，请稍后重试')
+        return Promise.reject(error.response)
     }
     return Promise.reject(error)
 })
