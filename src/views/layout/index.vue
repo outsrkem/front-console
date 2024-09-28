@@ -4,7 +4,7 @@
             <div>
                 <el-row>
                     <el-text class="header-text line-spacing">Console</el-text>
-                    <el-link class="header-text line-spacing" href="/console" target="_blank">控制台</el-link>
+                    <el-link class="header-text line-spacing" href="/console">控制台</el-link>
                 </el-row>
             </div>
             <div>
