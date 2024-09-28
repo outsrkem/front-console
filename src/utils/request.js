@@ -3,31 +3,26 @@
  */
 import axios from 'axios'
 // import router from '@/router'
+import { toLoginPage } from './common.js'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
-  baseURL: '/api/uias' // 请求的基础路径
+    baseURL: '/api/uias' // 请求的基础路径
 })
 
 request.interceptors.request.use(
-  /**
-   * 请求拦截器
-   */
-  function (config) {
-    /**
-     * 添加请求头
-     */
-    if (config.method === 'get') {
-      config.data = true
+    function (config) {
+        if (config.method === 'get') {
+            config.data = true
+        }
+        config.headers = {
+            'Content-Type':'application/json;charset=utf-8'
+        }
+        return config
+    },
+    function (error) {
+        return Promise.reject(error)
     }
-    config.headers = {
-      'Content-Type':'application/json;charset=utf-8'
-    }
-    return config // 当这里 return config 之后请求在会真正的发出去
-  },
-  function (error) { // 请求失败，会经过这里
-    return Promise.reject(error)
-  }
 )
 
 // 响应拦截器
@@ -36,10 +31,9 @@ request.interceptors.response.use(function (response) {
 }, function (error) {
     const { status } = error.response
     if (status === 401) {
-        // 跳转到登录页面
-        window.location.href = `/authui/login.html?service=${encodeURIComponent(window.location.href)}`;
-        return Promise.reject(error.response)
+        toLoginPage()
     } else if (status === 403) {
+        ElMessage.warning({message: '没有操作权限'})
         return Promise.reject(error.response)
     } else if (status === 400) {
         // 客户端参数错误
