@@ -4,9 +4,9 @@
             <div style="width: 100%; display: flex; justify-content: center">
                 <div style="width: 100%">
                     <el-steps simple :active="steps.active" :finish-status="steps.status">
-                        <el-step title="验证身份" />
-                        <el-step title="执行操作" />
-                        <el-step title="完成" />
+                        <el-step :title="title.step1" />
+                        <el-step :title="title.step2" />
+                        <el-step :title="title.step3" />
                     </el-steps>
                 </div>
             </div>
@@ -43,27 +43,27 @@
                     </el-form>
                 </div>
             </div>
-            <password v-if="pages.step2password" :vmodel="fromData"></password>
-            <vmfa v-if="pages.step2vmfa"></vmfa>
-            <sip v-if="pages.step2sip"></sip>
-            <email v-if="pages.step2email"></email>
+            <password-index v-if="pages.step2password" :vmodel="fromData" @call-parent="displayNextStep" />
+            <vmfa-index v-if="pages.step2vmfa" @call-parent="displayNextStep" />
+            <sip-index v-if="pages.step2sip" @call-parent="displayNextStep" />
+            <email-index v-if="pages.step2email" @call-parent="displayNextStep" />
         </el-card>
     </div>
 </template>
 
 <script>
-import password from "./password.vue";
-import vmfa from "./vmfa.vue";
-import sip from "./sip.vue";
-import email from "./email.vue";
+import PasswordIndex from "./password.vue";
+import VmfaIndex from "./vmfa.vue";
+import SipIndex from "./sip.vue";
+import EmailIndex from "./email.vue";
 import { GetSecurityDevice, GetCaptcha, VerifyCaptcha } from "@/api/index.js";
 export default {
     name: "SafetyIndex",
     components: {
-        password,
-        vmfa,
-        sip,
-        email,
+        PasswordIndex,
+        VmfaIndex,
+        SipIndex,
+        EmailIndex,
     },
     data() {
         return {
@@ -95,6 +95,11 @@ export default {
             },
             inputShow: "",
             mtype: "", // 操作类型
+            title: {
+                step1: "安全验证",
+                step2: "",
+                step3: "完成",
+            },
         };
     },
     methods: {
@@ -166,7 +171,7 @@ export default {
                 });
         },
         displayNextStep() {
-            if (this.steps.active < 2) {
+            if (this.steps.active < 3) {
                 this.steps.active++;
             }
         },
@@ -254,9 +259,28 @@ export default {
                 this.startCountdown(seconds - 1);
             }, 1000);
         },
+        initTitle(val) {
+            switch (val) {
+                case "password":
+                    this.title.step2 = "修改密码";
+                    break;
+                case "vmfa":
+                    this.title.step2 = "重置vmfa";
+                    break;
+                case "sip":
+                    this.title.step2 = "设置登录保护";
+                    break;
+                case "email":
+                    this.title.step2 = "设置邮箱";
+                    break;
+                default:
+                // 与 case 1 和 case 2 不同时执行的代码
+            }
+        },
     },
     created() {
         this.mtype = this.$route.query.type;
+        this.initTitle(this.mtype);
         this.loadGetSecurityDevice();
         this.checkInput();
     },

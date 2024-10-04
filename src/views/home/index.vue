@@ -5,7 +5,7 @@
             <el-container>
                 <div class="list-page-wrap">
                     <div v-for="(item, index) in pcLinks" :key="index">
-                        <a class="block-link" :href="item.link" target="_blank">
+                        <a class="block-link" :href="item.link">
                             <div class="link">
                                 <h1>{{ item.name }}</h1>
                             </div>

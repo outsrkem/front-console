@@ -1,11 +1,11 @@
 <template>
     <div style="width: 100%; display: flex; justify-content: center">
         <div style="width: 42%">
-            <div style="text-align: center; margin-bottom: 18px">
+            <div style="text-align: center">
                 <h5>设置邮箱</h5>
                 <el-text>有效的邮箱，可以用于重置密码，开启登录验证</el-text>
             </div>
-            <div v-if="page1">
+            <div v-if="page1" style="margin-top: 18px">
                 <!-- <div style="display: flex; align-items: center; height: auto"> -->
                 <el-form :model="formData" label-width="auto" label-position="left">
                     <el-form-item label="邮箱地址">
@@ -101,7 +101,7 @@ export default {
                 .then(() => {
                     this.page1 = false;
                     this.page2 = true;
-                    // this.$parent.displayNextStep();
+                    this.$emit("call-parent");
                 })
                 .catch((err) => {
                     this.SubmitDisabled = false;
@@ -139,6 +139,7 @@ export default {
                 this.$notify({ duration: 5000, title: "输入的不是6位数字", message: "", type: "error" });
                 return;
             }
+            this.$emit("call-parent");
             this.SubmitDisabled = true;
             this.loadSetMail();
         },
