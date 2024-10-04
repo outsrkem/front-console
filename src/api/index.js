@@ -34,3 +34,5 @@ export const ResetVmfa = () => ajax('/v1/uias/vmfa/otp/reset', 'POST')
 
 // 修改用户信息 patch /v1/uias/user/basicInfo
 export const UpdateUserInfo = (data) => ajax('/v1/uias/user/basicInfo', 'PATCH', null, data)
+// 打开或关闭登录验证 POST /v1/uias/user/2fa/toggle
+export const ToggleSip = (data) => ajax('/v1/uias/user/2fa/toggle', 'POST', null, data)

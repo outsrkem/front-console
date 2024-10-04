@@ -43,7 +43,7 @@ request.interceptors.response.use(function (response) {
         ElMessage.error('服务端内部异常，请稍后重试')
         return Promise.reject(error.response)
     }
-    return Promise.reject(error)
+    return Promise.reject(error.response)
 })
 
 // 导出请求方法
