@@ -46,6 +46,7 @@
             <password v-if="pages.step2password" :vmodel="fromData"></password>
             <vmfa v-if="pages.step2vmfa"></vmfa>
             <sip v-if="pages.step2sip"></sip>
+            <email v-if="pages.step2email"></email>
         </el-card>
     </div>
 </template>
@@ -54,6 +55,7 @@
 import password from "./password.vue";
 import vmfa from "./vmfa.vue";
 import sip from "./sip.vue";
+import email from "./email.vue";
 import { GetSecurityDevice, GetCaptcha, VerifyCaptcha } from "@/api/index.js";
 export default {
     name: "SafetyIndex",
@@ -61,6 +63,7 @@ export default {
         password,
         vmfa,
         sip,
+        email,
     },
     data() {
         return {
@@ -84,13 +87,14 @@ export default {
                 step2password: false,
                 step2vmfa: false,
                 step2sip: false,
+                step2email: false,
             },
             steps: {
-                active: 1,
+                active: 0,
                 status: "success",
             },
             inputShow: "",
-            nextType: "",
+            mtype: "", // 操作类型
         };
     },
     methods: {
@@ -161,11 +165,14 @@ export default {
                     };
                 });
         },
-        nextStep() {
+        displayNextStep() {
             if (this.steps.active < 2) {
                 this.steps.active++;
             }
-            switch (this.nextType) {
+        },
+        nextStep() {
+            this.displayNextStep();
+            switch (this.mtype) {
                 case "password":
                     this.pages.step1 = false;
                     this.pages.step2password = true;
@@ -177,6 +184,10 @@ export default {
                 case "sip":
                     this.pages.step1 = false;
                     this.pages.step2sip = true;
+                    break;
+                case "email":
+                    this.pages.step1 = false;
+                    this.pages.step2email = true;
                     break;
                 default:
                 // 与 case 1 和 case 2 不同时执行的代码
@@ -212,8 +223,7 @@ export default {
         },
         onNextStep() {
             // 下一步按钮
-            const type = this.$route.query.type;
-            this.nextType = type;
+            const type = this.mtype;
             if (type === "password") {
                 this.nextStep();
                 return;
@@ -224,7 +234,10 @@ export default {
             }
             if (type === "sip") {
                 this.loadVerifyCaptcha("TOGGLE_2FA_VERIFICATION");
-                // this.nextStep();
+                return;
+            }
+            if (type === "email") {
+                this.loadVerifyCaptcha("SET_USER_EMAIL");
                 return;
             }
         },
@@ -243,6 +256,7 @@ export default {
         },
     },
     created() {
+        this.mtype = this.$route.query.type;
         this.loadGetSecurityDevice();
         this.checkInput();
     },

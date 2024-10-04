@@ -10,28 +10,28 @@
                 <div class="line-row">
                     <el-text class="title">姓名</el-text>
                     <el-text class="value">{{ userInfo.username }}</el-text>
-                    <el-button link type="primary" disabled>修改</el-button>
+                    <!-- <el-button link type="primary" disabled>修改</el-button> -->
                 </div>
                 <div class="line-row">
                     <el-text class="title">手机号码</el-text>
                     <span v-if="userInfo.mobile === ''">
                         <el-text class="value">未绑定</el-text>
-                        <el-button link type="primary" disabled>绑定</el-button>
+                        <!-- <el-button link type="primary" disabled>绑定</el-button> -->
                     </span>
                     <span v-else>
                         <el-text class="value">{{ userInfo.mobile }}</el-text>
-                        <el-button link type="primary" disabled>修改</el-button>
+                        <!-- <el-button link type="primary" disabled>修改</el-button> -->
                     </span>
                 </div>
                 <div class="line-row">
                     <el-text class="title">邮箱号码</el-text>
                     <span v-if="userInfo.email === ''">
                         <el-text class="value">未绑定</el-text>
-                        <el-button link type="primary" @click="onUpdateEmail()" disabled>绑定</el-button>
+                        <el-button link type="primary" @click="onUpdateEmail()">绑定</el-button>
                     </span>
                     <span v-else>
                         <el-text class="value">{{ userInfo.email }}</el-text>
-                        <el-button link type="primary" disabled>修改</el-button>
+                        <el-button link type="primary" @click="onUpdateEmail()">修改</el-button>
                     </span>
                 </div>
                 <div class="line-row">
@@ -43,7 +43,7 @@
                     <el-text class="title">虚拟MFA</el-text>
                     <span v-if="vmfa">
                         <el-text class="value">已绑定</el-text>
-                        <el-button link type="primary" @click="onResetVmfa()">解绑</el-button>
+                        <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
                     </span>
                     <span v-else>
                         <el-text class="value">未绑定</el-text>
