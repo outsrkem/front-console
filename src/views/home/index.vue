@@ -2,6 +2,11 @@
     <div v-if="Mobile">
         <!-- 电脑端页面 -->
         <el-card>
+            <template #header>
+                <div class="card-header">
+                    <span>服务导航</span>
+                </div>
+            </template>
             <el-container>
                 <div class="list-page-wrap">
                     <div v-for="(item, index) in pcLinks" :key="index">

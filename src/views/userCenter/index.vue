@@ -1,110 +1,117 @@
 <template>
     <div>
         <el-card>
-            <div class="basic-info">
-                <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">基础信息</el-divider>
-                <div class="line-row">
-                    <el-text class="title">账号名</el-text>
-                    <el-text class="value"> {{ userInfo.account }}</el-text>
+            <template #header>
+                <div class="card-header">
+                    <span>个人中心</span>
                 </div>
-                <div class="line-row">
-                    <el-text class="title">姓名</el-text>
-                    <el-text class="value">
-                        <span style="margin-right: 10px">{{ userInfo.username }}</span>
-                        <el-tooltip class="box-item" effect="light" content="姓名由管理员设置，如需修改，请联系管理员。" placement="right">
-                            <el-icon style="color: #9fa1a5"><QuestionFilled /></el-icon>
-                        </el-tooltip>
-                    </el-text>
-                </div>
-                <div class="line-row">
-                    <el-text class="title">注册时间</el-text>
-                    <el-text class="value">{{ formatDate(userInfo.create_time) }}</el-text>
-                </div>
-                <div class="line-row">
-                    <el-text class="title">最近登录时间</el-text>
-                    <el-text class="value">{{ formatDate(userInfo.last_login_at) }}</el-text>
-                </div>
+            </template>
+            <div v-loading="loading" element-loading-text="正在加载······">
+                <div>
+                    <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">基础信息</el-divider>
+                    <div class="line-row">
+                        <el-text class="title">账号名</el-text>
+                        <el-text class="value"> {{ userInfo.account }}</el-text>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">姓名</el-text>
+                        <el-text class="value">
+                            <span style="margin-right: 10px">{{ userInfo.username }}</span>
+                            <el-tooltip class="box-item" effect="light" content="姓名由管理员设置，如需修改，请联系管理员。" placement="right">
+                                <el-icon style="color: #9fa1a5"><QuestionFilled /></el-icon>
+                            </el-tooltip>
+                        </el-text>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">注册时间</el-text>
+                        <el-text class="value">{{ formatDate(userInfo.create_time) }}</el-text>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">最近登录时间</el-text>
+                        <el-text class="value">{{ formatDate(userInfo.last_login_at) }}</el-text>
+                    </div>
 
-                <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">账号安全信息</el-divider>
-                <div class="line-row">
-                    <el-text class="title">手机号码</el-text>
-                    <span v-if="userInfo.mobile === ''">
-                        <el-text class="value">
-                            <el-icon class="warning-color"><WarningFilled /></el-icon>
-                            <span style="margin-left: 5px">未绑定</span>
-                        </el-text>
-                    </span>
-                    <span v-if="userInfo.mobile !== ''">
-                        <el-text class="value">
-                            <el-icon class="success-color"><SuccessFilled /></el-icon>
-                            <span style="margin-left: 5px">{{ userInfo.mobile }}</span>
-                        </el-text>
-                    </span>
-                </div>
-                <div class="line-row">
-                    <el-text class="title">邮箱号码</el-text>
-                    <span v-if="userInfo.email === ''">
-                        <el-text class="value">
-                            <el-icon class="warning-color"><WarningFilled /></el-icon>
-                            <span style="margin-left: 5px">未绑定</span>
-                        </el-text>
-                        <el-button link type="primary" @click="onUpdateEmail()">绑定</el-button>
-                    </span>
-                    <span v-if="userInfo.email !== ''">
-                        <el-text class="value">
-                            <el-icon class="success-color"><SuccessFilled /></el-icon>
-                            <span style="margin-left: 5px">{{ userInfo.email }}</span>
-                        </el-text>
-                        <el-button link type="primary" @click="onUpdateEmail()">修改</el-button>
-                    </span>
-                </div>
-                <div class="line-row">
-                    <el-text class="title">登录密码</el-text>
-                    <el-text class="value">
-                        <el-icon class="success-color"><SuccessFilled /></el-icon>
-                        <span style="margin-left: 5px">{{ userInfo.password }}</span>
-                    </el-text>
-                    <el-button link type="primary" @click="onChangePassword()">修改</el-button>
-                </div>
-                <div class="line-row">
-                    <el-text class="title">虚拟MFA</el-text>
-                    <span v-if="userInfo.vmfa">
+                    <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">安全信息</el-divider>
+                    <div class="line-row">
+                        <el-text class="title">手机号码</el-text>
+                        <span v-if="userInfo.mobile === ''">
+                            <el-text class="value">
+                                <el-icon class="warning-color"><WarningFilled /></el-icon>
+                                <span style="margin-left: 5px">未绑定</span>
+                            </el-text>
+                        </span>
+                        <span v-if="userInfo.mobile !== ''">
+                            <el-text class="value">
+                                <el-icon class="success-color"><SuccessFilled /></el-icon>
+                                <span style="margin-left: 5px">{{ userInfo.mobile }}</span>
+                            </el-text>
+                        </span>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">邮箱号码</el-text>
+                        <span v-if="userInfo.email === ''">
+                            <el-text class="value">
+                                <el-icon class="warning-color"><WarningFilled /></el-icon>
+                                <span style="margin-left: 5px">未绑定</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onUpdateEmail()">绑定</el-button>
+                        </span>
+                        <span v-if="userInfo.email !== ''">
+                            <el-text class="value">
+                                <el-icon class="success-color"><SuccessFilled /></el-icon>
+                                <span style="margin-left: 5px">{{ userInfo.email }}</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onUpdateEmail()">修改</el-button>
+                        </span>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">登录密码</el-text>
                         <el-text class="value">
                             <el-icon class="success-color"><SuccessFilled /></el-icon>
-                            <span style="margin-left: 5px">已绑定</span>
+                            <span style="margin-left: 5px">{{ userInfo.password }}</span>
                         </el-text>
-                        <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
+                        <el-button link type="primary" @click="onChangePassword()">修改</el-button>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">虚拟MFA</el-text>
+                        <span v-if="userInfo.vmfa">
+                            <el-text class="value">
+                                <el-icon class="success-color"><SuccessFilled /></el-icon>
+                                <span style="margin-left: 5px">已绑定</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
+                        </span>
+                        <span v-else>
+                            <el-text class="value">
+                                <el-icon class="warning-color"><WarningFilled /></el-icon>
+                                <span style="margin-left: 5px">未绑定</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onOpenBindVmfa()">绑定</el-button>
+                        </span>
+                    </div>
+                    <el-text class="title">登录保护</el-text>
+                    <span v-if="userInfo.sip === 'ON'">
+                        <el-text class="value">
+                            <el-icon class="success-color"><SuccessFilled /></el-icon>
+                            <span style="margin-left: 5px">已开启</span>
+                        </el-text>
+                        <el-button link type="primary" @click="onSwitchSip()">关闭</el-button>
                     </span>
                     <span v-else>
                         <el-text class="value">
                             <el-icon class="warning-color"><WarningFilled /></el-icon>
-                            <span style="margin-left: 5px">未绑定</span>
+                            <span style="margin-left: 5px">未开启</span>
                         </el-text>
-                        <el-button link type="primary" @click="onOpenBindVmfa()">绑定</el-button>
+                        <el-button link type="primary" @click="onSwitchSip()">开启</el-button>
                     </span>
-                </div>
-                <el-text class="title">登录保护</el-text>
-                <span v-if="userInfo.sip === 'ON'">
-                    <el-text class="value">
-                        <el-icon class="success-color"><SuccessFilled /></el-icon>
-                        <span style="margin-left: 5px">已开启</span>
-                    </el-text>
-                    <el-button link type="primary" @click="onSwitchSip()">关闭</el-button>
-                </span>
-                <span v-else>
-                    <el-text class="value">
-                        <el-icon class="warning-color"><WarningFilled /></el-icon>
-                        <span style="margin-left: 5px">未开启</span>
-                    </el-text>
-                    <el-button link type="primary" @click="onSwitchSip()">开启</el-button>
-                </span>
 
-                <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">注销账号</el-divider>
-                <div style="margin-left: 100px; width: 800px">
-                    <el-text>{{ cancelmsg }}</el-text>
-                </div>
-                <div style="margin-left: 100px; margin-top: 10px; width: 800px">
-                    <el-button plain size="small" disabled>关闭账号(暂不支持)</el-button>
+                    <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">注销账号</el-divider>
+                    <div style="margin-left: 100px; width: 800px">
+                        <el-text>{{ cancelmsg }}</el-text>
+                    </div>
+                    <div style="margin-left: 100px; margin-top: 10px; width: 800px">
+                        <el-button plain size="small" disabled>关闭账号(暂不支持)</el-button>
+                    </div>
                 </div>
             </div>
         </el-card>
@@ -159,12 +166,14 @@ export default {
             form: {
                 bindVmfaCaptcha: "",
             },
+            timeoutId: null,
+            loading: true,
         };
     },
     computed: {},
     watch: {},
     created() {
-        this.GetbasicInfo();
+        this.onRefresh();
     },
     methods: {
         formatDate(time) {
@@ -174,7 +183,8 @@ export default {
             basicInfo()
                 .then((res) => {
                     this.userInfo = res.payload.userinfo;
-                    this.userInfo.password = "●●●●●●●●●●●●●";
+                    this.userInfo.password = "●●●●●●●●●";
+                    this.loading = false;
                 })
                 .catch(() => {});
         },
@@ -200,7 +210,11 @@ export default {
                 });
         },
         onRefresh() {
-            this.GetbasicInfo();
+            this.loading = true;
+            clearTimeout(this.timeoutId);
+            this.timeoutId = setTimeout(() => {
+                this.GetbasicInfo();
+            }, 350);
         },
         onOpenBindVmfa() {
             this.CreateVmfa();

@@ -54,6 +54,25 @@
             <sip-index v-if="pages.step2sip" @call-parent="displayNextStep" />
             <email-index v-if="pages.step2email" @call-parent="displayNextStep" />
         </el-card>
+        <el-dialog v-model="noDevicesMessage" title="提示" width="800" :close-on-click-modal="false">
+            <div>
+                <el-result icon="warning" title="您还没有绑定任何验证设备" sub-title="以下两种，任选其一绑定即可。">
+                    <template #extra>
+                        <div style="text-align: left">
+                            <div class="text-row">
+                                <span>方式1（绑定虚拟MFA）：在个人中心->虚拟MFA，使用具有totp功能的app绑定即可。</span>
+                            </div>
+                            <div class="text-row">
+                                <span>方式2（绑定邮箱）：联系管理员绑定邮箱</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px">
+                            <el-button type="primary" @click="noDevicesMessage = false">关闭</el-button>
+                        </div>
+                    </template>
+                </el-result>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -74,6 +93,7 @@ export default {
     data() {
         return {
             devices: "", // 用户绑定的所有验证设备
+            noDevicesMessage: false,
             fromData: {
                 device: "", // 用户选择的验证设备
                 captcha: "",
@@ -123,8 +143,13 @@ export default {
                 }
                 this.inputShow = "请输入6位数字验证码";
             });
+
             this.devices = data;
-            if (this.fromData.device === "") {
+            if (this.devices.length === 0) {
+                console.log("++", this.devices);
+                this.noDevicesMessage = true;
+            }
+            if (this.fromData.device === "" && this.devices.length !== 0) {
                 this.fromData.device = data[0].device;
             }
         },
@@ -146,10 +171,11 @@ export default {
                         text: `验证码发送成功。验证码编号：${res.payload.captcha.serial}`,
                     };
                 })
-                .catch(() => {
+                .catch((err) => {
+                    let msg = err.data.metadata.message;
                     this.messages = {
                         type: "danger",
-                        text: "验证码发送失败，请稍后重试。",
+                        text: "验证码发送失败，请稍后重试。" + msg,
                     };
                 });
         },
@@ -235,7 +261,7 @@ export default {
                 return;
             }
             if (type === "email") {
-                this.loadVerifyCaptcha("SET_USER_EMAIL");
+                this.loadVerifyCaptcha("RESET_USER_EMAIL");
                 return;
             }
         },
@@ -280,4 +306,21 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.el-result {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.el-result__extra {
+    margin-top: 10px;
+}
+.text-row {
+    background-color: #ffdba5;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+</style>

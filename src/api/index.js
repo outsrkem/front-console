@@ -48,4 +48,7 @@ export const SetPasswd = (data) => ajax('/v1/uias/user/password/reset', 'POST', 
 export const GetCredential = () => ajax('/v1/uias/user/credential', 'GET', null)
 // 删除凭据 DELETE /v1/uias/user/credential
 export const DeleteCredential = (data) => ajax('/v1/uias/user/credential', 'DELETE', null, data)
-
+// 修改凭据 PATCH /v1/uias/user/credential
+export const EditCredential = (data) => ajax('/v1/uias/user/credential', 'PATCH', null, data)
+// 创建凭据
+export const CreateCredential = (data) => ajax('/v1/uias/user/credential', 'POST', null, data)
