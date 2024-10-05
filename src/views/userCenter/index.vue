@@ -174,7 +174,7 @@ export default {
             basicInfo()
                 .then((res) => {
                     this.userInfo = res.payload.userinfo;
-                    this.userInfo.password = "****************";
+                    this.userInfo.password = "●●●●●●●●●●●●●";
                 })
                 .catch(() => {});
         },

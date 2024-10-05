@@ -40,3 +40,12 @@ export const ToggleSip = (data) => ajax('/v1/uias/user/2fa/toggle', 'POST', null
 export const SendCaptcha = (data) => ajax('/v1/uias/captcha/send', 'POST', null, data)
 // 修改或绑定邮箱 POST /v1/uias/user/email
 export const SetMail = (data) => ajax('/v1/uias/user/email', 'POST', null, data)
+// 修改密码 POST /v1/uias/user/password/reset
+export const SetPasswd = (data) => ajax('/v1/uias/user/password/reset', 'POST', null, data)
+
+// 凭据管理
+// 查询凭据 GET /v1/uias/user/credential
+export const GetCredential = () => ajax('/v1/uias/user/credential', 'GET', null)
+// 删除凭据 DELETE /v1/uias/user/credential
+export const DeleteCredential = (data) => ajax('/v1/uias/user/credential', 'DELETE', null, data)
+

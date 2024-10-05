@@ -10,6 +10,9 @@
             <el-menu-item index="/accountInfo" @click="OnSwitchRoutes('/accountInfo')">
                 <span>个人中心</span>
             </el-menu-item>
+            <el-menu-item index="/credential" @click="OnSwitchRoutes('/credential')">
+                <span>我的凭据</span>
+            </el-menu-item>
         </el-menu>
     </div>
 </template>

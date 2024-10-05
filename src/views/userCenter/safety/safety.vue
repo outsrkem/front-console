@@ -18,7 +18,13 @@
                     <el-form :model="fromData" label-width="auto" label-position="left">
                         <el-form-item label="请选择验证方式">
                             <el-select v-model="fromData.device">
-                                <el-option v-for="item in devices" :key="item.device" :label="item.title" :value="item.device" />
+                                <el-option
+                                    v-for="item in devices"
+                                    :key="item.device"
+                                    :label="item.title"
+                                    :value="item.device"
+                                    :disabled="item.disabled"
+                                />
                             </el-select>
                         </el-form-item>
                         <el-form-item label="请输入验证码" style="margin-bottom: 0px">
@@ -109,17 +115,13 @@ export default {
                     item["title"] = `邮箱验证（${item.name}）`;
                 }
                 if (item.device === "mobile") {
-                    item["title"] = `手机验证，暂不支持获取验证码（${item.name}）`;
+                    item["title"] = `手机验证（${item.name}）`;
+                    item["disabled"] = true;
                 }
                 if (item.device === "vmfa") {
-                    item["title"] = `VMFA验证`;
+                    item["title"] = `虚拟MFA验证`;
                 }
-                if (item.device === "password") {
-                    this.inputShow = "请输入密码";
-                    item["title"] = `登录密码验证`;
-                } else {
-                    this.inputShow = "6位数字验证码";
-                }
+                this.inputShow = "请输入6位数字验证码";
             });
             this.devices = data;
             if (this.fromData.device === "") {
@@ -205,15 +207,6 @@ export default {
         },
         checkInput() {
             let captcha = this.fromData.captcha;
-            if (this.fromData.device === "password") {
-                // 没有绑定任何设备
-                if (captcha.length > 2) {
-                    this.NextStepDisabled = false;
-                } else {
-                    this.NextStepDisabled = true;
-                }
-                return;
-            }
             if (captcha === "" || captcha.length !== 6) {
                 this.NextStepDisabled = true;
                 return;
@@ -230,7 +223,7 @@ export default {
             // 下一步按钮
             const type = this.mtype;
             if (type === "password") {
-                this.nextStep();
+                this.loadVerifyCaptcha("RESET_USER_PASSWORD");
                 return;
             }
             if (type === "vmfa") {
