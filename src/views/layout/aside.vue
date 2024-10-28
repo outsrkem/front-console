@@ -34,6 +34,9 @@ export default {
     watch: {},
     created() {
         this.activePath = window.sessionStorage.getItem("active-path") || "/";
+        this.$globalBus.on("updateActivePath", (data) => {
+            this.activePath = data;
+        });
     },
     methods: {
         saveActivePath(activePath) {

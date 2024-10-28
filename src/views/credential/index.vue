@@ -299,6 +299,7 @@ export default {
         },
     },
     created() {
+        this.$globalBus.emit("updateActivePath", "/credential");
         this.onRefresh();
     },
 };

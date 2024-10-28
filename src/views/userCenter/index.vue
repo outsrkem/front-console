@@ -7,6 +7,14 @@
                 </div>
             </template>
             <div v-loading="loading" element-loading-text="正在加载······">
+                <div class="hint-message">
+                    <el-text>
+                        <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
+                        <span style="margin-left: 5px"
+                            >绑定邮箱、手机、虚拟MF并开启登录保护，能够提升账号的安全性。为防止密码泄露，建议定期修改密码。
+                        </span>
+                    </el-text>
+                </div>
                 <div>
                     <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">基础信息</el-divider>
                     <div class="line-row">
@@ -79,14 +87,14 @@
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
                                 <span style="margin-left: 5px">已绑定</span>
                             </el-text>
-                            <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
+                            <el-button link type="primary" @click="onResetVmfa()" disabled>重置</el-button>
                         </span>
                         <span v-else>
                             <el-text class="value">
                                 <el-icon class="warning-color"><WarningFilled /></el-icon>
                                 <span style="margin-left: 5px">未绑定</span>
                             </el-text>
-                            <el-button link type="primary" @click="onOpenBindVmfa()">绑定</el-button>
+                            <el-button link type="primary" @click="onOpenBindVmfa()" disabled>绑定</el-button>
                         </span>
                     </div>
                     <el-text class="title">登录保护</el-text>
@@ -174,6 +182,7 @@ export default {
     watch: {},
     created() {
         this.onRefresh();
+        this.$globalBus.emit("updateActivePath", "/accountInfo");
     },
     methods: {
         formatDate(time) {
@@ -262,5 +271,14 @@ export default {
 }
 .warning-color {
     color: #ffb700;
+}
+.hint-message {
+    background-color: #deecff;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    border-radius: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-bottom: 10px;
 }
 </style>

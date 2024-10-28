@@ -9,12 +9,14 @@
             </template>
             <el-container>
                 <div class="list-page-wrap">
-                    <div v-for="(item, index) in pcLinks" :key="index">
-                        <a class="block-link" :href="item.link">
-                            <div class="link">
-                                <h1>{{ item.name }}</h1>
-                            </div>
-                        </a>
+                    <div v-for="(item, index) in endpoint" :key="index">
+                        <div v-if="!(item.platform === 'mobile')">
+                            <a class="block-link" :href="item.link">
+                                <div class="link">
+                                    <h1>{{ item.title }}</h1>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </el-container>
@@ -30,27 +32,24 @@
                 <el-text size="small">欢迎您，{{ userInfo.username }}。更多功能请使用电脑端访问。</el-text>
             </div>
         </div>
-        <div class="mobile-link" v-for="item in mobileLinks" :key="item.id">
-            <div>
-                <el-button style="width: 100%" size="large" type="primary" plain @click="onSkipTo(item.link)">{{ item.name }}</el-button>
+        <div class="mobile-link" v-for="item in endpoint" :key="item.id">
+            <div v-if="!(item.platform === 'pc')">
+                <el-button style="width: 100%" size="large" type="primary" plain @click="onSkipTo(item.link)">
+                    {{ item.title }}
+                </el-button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { basicInfo } from "@/api/index.js";
+import { basicInfo, GetEndpoint } from "@/api/index.js";
 export default {
     name: "HomeIndex",
     data() {
         return {
-            username: "",
-            pcLinks: [
-                { name: "认证中心服务", link: "/uias/#/users" },
-                { name: "阳坝小学营养餐记录系统", link: "/snms" },
-            ],
-            mobileLinks: [{ name: "阳坝小学营养餐记录系统", link: "/snms" }],
-            Mobile: true,
+            Mobile: true, // 区别是手机端还是电脑端
+            endpoint: [], // [{"name":"xxx xxx","title":"xxx","link":"/xxx","platform":"pc"}]
             userInfo: {},
         };
     },
@@ -72,8 +71,14 @@ export default {
                 })
                 .catch(() => {});
         },
+        // 获取控制台服务链接
+        loadGetEndpoint: async function () {
+            const res = await GetEndpoint();
+            this.endpoint = res.payload.items;
+        },
     },
     created() {
+        this.$globalBus.emit("updateActivePath", "/");
         if (this.isMobile()) {
             this.Mobile = false;
             this.$router.push({ name: "homeMobile" });
@@ -81,6 +86,7 @@ export default {
             this.$router.push({ name: "homePc" });
         }
         this.GetbasicInfo();
+        this.loadGetEndpoint();
     },
 };
 </script>

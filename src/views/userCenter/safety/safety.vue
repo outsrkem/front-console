@@ -13,16 +13,16 @@
             <div v-if="pages.step1" style="width: 100%; display: flex; justify-content: center">
                 <div style="width: 42%">
                     <div style="text-align: center">
-                        <h5>为确认是您本人操作，请完成以下验证。</h5>
+                        <h5>为了您的账号安全，请完成以下验证。</h5>
                     </div>
                     <el-form :model="fromData" label-width="auto" label-position="left">
                         <el-form-item label="请选择验证方式">
                             <el-select v-model="fromData.device">
                                 <el-option
                                     v-for="item in devices"
-                                    :key="item.device"
+                                    :key="item.name"
                                     :label="item.title"
-                                    :value="item.device"
+                                    :value="item.name"
                                     :disabled="item.disabled"
                                 />
                             </el-select>
@@ -30,7 +30,7 @@
                         <el-form-item label="请输入验证码" style="margin-bottom: 0px">
                             <div style="width: 100%; display: flex; align-items: center">
                                 <div style="width: 100%">
-                                    <el-input v-model="fromData.captcha" :placeholder="inputShow" @input="checkInput" />
+                                    <el-input v-model="fromData.captcha" :placeholder="inputShow" @input="checkInput"></el-input>
                                 </div>
                                 <div v-if="fromData.device === 'email' || fromData.device === 'mobile'">
                                     <el-button plain style="margin-left: 15px" :disabled="GetCaptchaDisabled" @click="onSendCaptcha()">{{
@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                         </el-form-item>
-                        <div style="display: flex; justify-content: center; width: 100%; margin-bottom: 18px">
+                        <div class="messages">
                             <el-text :type="messages.type">{{ messages.text }}</el-text>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center">
@@ -54,16 +54,13 @@
             <sip-index v-if="pages.step2sip" @call-parent="displayNextStep" />
             <email-index v-if="pages.step2email" @call-parent="displayNextStep" />
         </el-card>
-        <el-dialog v-model="noDevicesMessage" title="提示" width="800" :close-on-click-modal="false">
+        <el-dialog v-model="noDevicesMessage" title="" width="800" :close-on-click-modal="false">
             <div>
-                <el-result icon="warning" title="您还没有绑定任何验证设备" sub-title="以下两种，任选其一绑定即可。">
+                <el-result icon="warning" title="您还没有绑定任何安全验证设备">
                     <template #extra>
                         <div style="text-align: left">
                             <div class="text-row">
-                                <span>方式1（绑定虚拟MFA）：在个人中心->虚拟MFA，使用具有totp功能的app绑定即可。</span>
-                            </div>
-                            <div class="text-row">
-                                <span>方式2（绑定邮箱）：联系管理员绑定邮箱</span>
+                                <span>请联系管理员绑定邮箱</span>
                             </div>
                         </div>
                         <div style="margin-top: 20px">
@@ -126,32 +123,33 @@ export default {
                 step2: "",
                 step3: "完成",
             },
+            captcha: {
+                serial: "",
+            },
         };
     },
     methods: {
         ProcessSecurityDevice(data) {
             data.map((item) => {
-                if (item.device === "email") {
-                    item["title"] = `邮箱验证（${item.name}）`;
+                if (item.name === "vmfa") {
+                    item["title"] = `虚拟MFA验证（${item.value}）`;
                 }
-                if (item.device === "mobile") {
-                    item["title"] = `手机验证（${item.name}）`;
+                if (item.name === "email") {
+                    item["title"] = `邮箱验证（${item.value}）`;
+                }
+                if (item.name === "mobile") {
+                    item["title"] = `手机验证（${item.value}）`;
                     item["disabled"] = true;
-                }
-                if (item.device === "vmfa") {
-                    item["title"] = `虚拟MFA验证`;
                 }
                 this.inputShow = "请输入6位数字验证码";
             });
-
-            this.devices = data;
-            if (this.devices.length === 0) {
-                console.log("++", this.devices);
+            if (data.length === 0) {
                 this.noDevicesMessage = true;
             }
-            if (this.fromData.device === "" && this.devices.length !== 0) {
-                this.fromData.device = data[0].device;
+            if (this.fromData.device === "" && data.length !== 0) {
+                this.fromData.device = data[0].name;
             }
+            this.devices = data;
         },
         loadGetSecurityDevice: function () {
             GetSecurityDevice()
@@ -163,12 +161,15 @@ export default {
         },
         loadGetCaptcha: function () {
             // 获取验证码
-            const params = { variety: this.fromData.device };
-            GetCaptcha(params)
+            const patch = { schema: this.fromData.device };
+            GetCaptcha(patch)
                 .then((res) => {
                     this.messages = {
                         type: "success",
                         text: `验证码发送成功。验证码编号：${res.payload.captcha.serial}`,
+                    };
+                    this.captcha = {
+                        serial: res.payload.captcha.serial,
                     };
                 })
                 .catch((err) => {
@@ -298,6 +299,7 @@ export default {
         },
     },
     created() {
+        this.$globalBus.emit("updateActivePath", "/accountInfo");
         this.mtype = this.$route.query.type;
         this.initTitle(this.mtype);
         this.loadGetSecurityDevice();
@@ -306,7 +308,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped lang="less">
 .el-result {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -322,5 +324,13 @@ export default {
     padding-bottom: 5px;
     margin-bottom: 10px;
     border-radius: 8px;
+}
+.messages {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 20px;
+    margin-bottom: 8px;
+    margin-top: 8px;
 }
 </style>
