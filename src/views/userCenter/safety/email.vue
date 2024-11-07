@@ -2,19 +2,17 @@
     <div style="width: 100%; display: flex; justify-content: center">
         <div style="width: 42%">
             <div style="text-align: center">
-                <h5>设置邮箱</h5>
-                <el-text>有效的邮箱，可以用于重置密码，开启登录验证</el-text>
+                <h5>有效的邮箱，可以用于重置密码，开启登录验证</h5>
             </div>
             <div v-if="page1" style="margin-top: 18px">
-                <!-- <div style="display: flex; align-items: center; height: auto"> -->
-                <el-form :model="formData" label-width="auto" label-position="left">
-                    <el-form-item label="邮箱地址">
+                <el-form :model="formData" label-width="auto" label-position="left" :rules="formRules" :hide-required-asterisk="true">
+                    <el-form-item label="新邮箱地址" prop="email">
                         <el-input v-model="formData.email" :placeholder="messages.email" />
                     </el-form-item>
-                    <el-form-item label="邮箱验证码" style="margin-bottom: 0px">
+                    <el-form-item label="邮箱验证码" prop="captcha" style="margin-bottom: 0px">
                         <div style="width: 100%; display: flex; align-items: center">
                             <div style="width: 100%">
-                                <el-input v-model="formData.captcha" :placeholder="messages.text" />
+                                <el-input v-model="formData.captcha" placeholder="6位数字验证码" />
                             </div>
                             <div>
                                 <el-button plain style="margin-left: 15px" :disabled="GetCaptchaDisabled" @click="onSendCaptcha()">{{
@@ -24,9 +22,12 @@
                         </div>
                     </el-form-item>
                 </el-form>
-                <div style="display: flex; justify-content: flex-end; margin-top: 18px">
-                    <el-button style="width: 100px" @click="onCance()">取消</el-button>
-                    <el-button style="width: 100px" type="primary" :disabled="SubmitDisabled" @click="onSubmit()">确认</el-button>
+                <div class="messages">
+                    <el-text :type="messages.type">{{ messages.text }}</el-text>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                    <el-button style="width: 48%" @click="onCance()">取消</el-button>
+                    <el-button style="width: 48%" type="primary" :disabled="SubmitDisabled" @click="onSubmit()">确认修改邮箱</el-button>
                 </div>
             </div>
             <div v-if="page2">
@@ -64,14 +65,22 @@ export default {
             countdownTimer: null, //定时器
             messages: {
                 type: "",
-                text: "6位数字验证码",
+                text: "",
                 email: "",
             },
-            // oldemail: "",
+            formRules: {
+                email: [
+                    { type: "string", required: true, message: "", trigger: ["blur"] },
+                    { type: "email", message: "", trigger: ["blur", "change"] },
+                ],
+                captcha: [
+                    { type: "string", required: true, message: "", trigger: ["blur"] },
+                    { type: "string", pattern: /^[0-9]{6}$/, message: "", trigger: ["blur", "change"] },
+                ],
+            },
         };
     },
     methods: {
-        // load
         GetbasicInfo: function () {
             basicInfo()
                 .then((res) => {
@@ -87,7 +96,7 @@ export default {
                 .then((res) => {
                     this.messages = {
                         type: "success",
-                        text: `发送成功。验证码编号：${res.payload.captcha.serial}`,
+                        text: `验证码发送成功（10内分钟有效）。验证码编号：${res.payload.captcha.serial}`,
                     };
                 })
                 .catch((err) => {
@@ -163,4 +172,13 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped lang="less">
+.messages {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 20px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+}
+</style>

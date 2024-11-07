@@ -166,7 +166,7 @@ export default {
                 .then((res) => {
                     this.messages = {
                         type: "success",
-                        text: `验证码发送成功。验证码编号：${res.payload.captcha.serial}`,
+                        text: `验证码发送成功（10内分钟有效）。验证码编号：${res.payload.captcha.serial}`,
                     };
                     this.captcha = {
                         serial: res.payload.captcha.serial,
