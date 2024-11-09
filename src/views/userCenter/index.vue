@@ -18,14 +18,14 @@
                 <div>
                     <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">基础信息</el-divider>
                     <div class="line-row">
-                        <el-text class="title">账号名</el-text>
+                        <el-text class="title">账号名称</el-text>
                         <el-text class="value"> {{ userInfo.account }}</el-text>
                     </div>
                     <div class="line-row">
-                        <el-text class="title">姓名</el-text>
+                        <el-text class="title">用户名</el-text>
                         <el-text class="value">
                             <span style="margin-right: 10px">{{ userInfo.username }}</span>
-                            <el-tooltip class="box-item" effect="light" content="姓名由管理员设置，如需修改，请联系管理员。" placement="right">
+                            <el-tooltip class="box-item" effect="light" content="用户名由管理员设置，如需修改，请联系管理员。" placement="right">
                                 <el-icon style="color: #9fa1a5"><QuestionFilled /></el-icon>
                             </el-tooltip>
                         </el-text>
