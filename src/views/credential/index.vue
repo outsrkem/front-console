@@ -108,15 +108,15 @@
                         </span>
                     </el-text>
                 </div>
-                <el-form :model="createForm" label-width="auto" style="max-width: auto" label-position="left">
-                    <el-form-item label="描述">
+                <el-form :model="createForm" label-width="auto" style="max-width: auto" label-position="top">
+                    <el-form-item label="请输入凭据的描述信息">
                         <el-input
                             v-model="createForm.description"
                             type="textarea"
                             maxlength="128"
                             show-word-limit
                             :autosize="{ minRows: 4, maxRows: 4 }"
-                            placeholder="请输入描述信息"
+                            placeholder="凭据描述信息"
                         />
                     </el-form-item>
                 </el-form>
