@@ -69,10 +69,10 @@
             </div>
         </el-card>
 
-        <el-dialog v-model="editDialogVisible" title="编辑" width="500" :close-on-click-modal="false" draggable>
-            <div style="margin-left: 80px; margin-right: 80px">
+        <el-dialog v-model="editDialogVisible" title="编辑" width="500px" :close-on-click-modal="false" draggable>
+            <div style="margin-left: 20px; margin-right: 20px">
                 <el-form :model="editForm" label-width="auto" style="max-width: auto" label-position="left">
-                    <el-form-item label="密钥ID">
+                    <el-form-item label="密钥ID" style="margin-bottom: 0px">
                         <el-text>{{ editForm.access }}</el-text>
                     </el-form-item>
                     <el-form-item label="创建时间">
@@ -82,9 +82,9 @@
                         <el-input
                             v-model="editForm.description"
                             type="textarea"
-                            maxlength="128"
+                            maxlength="60"
                             show-word-limit
-                            :autosize="{ minRows: 4, maxRows: 4 }"
+                            :autosize="{ minRows: 3, maxRows: 3 }"
                             placeholder="请输入描述信息"
                         />
                     </el-form-item>
@@ -98,8 +98,8 @@
             </div>
         </el-dialog>
 
-        <el-dialog v-model="createDialogVisible" title="新增访问凭据" width="500" :close-on-click-modal="false" draggable>
-            <div style="margin-left: 50px; margin-right: 50px; margin-top: 22px">
+        <el-dialog v-model="createDialogVisible" title="新增访问凭据" width="500px" :close-on-click-modal="false" draggable>
+            <div style="margin-left: 20px; margin-right: 20px">
                 <div class="hint-message">
                     <el-text>
                         <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
@@ -113,9 +113,9 @@
                         <el-input
                             v-model="createForm.description"
                             type="textarea"
-                            maxlength="128"
+                            maxlength="60"
                             show-word-limit
-                            :autosize="{ minRows: 4, maxRows: 4 }"
+                            :autosize="{ minRows: 3, maxRows: 3 }"
                             placeholder="凭据描述信息"
                         />
                     </el-form-item>
@@ -130,7 +130,7 @@
         </el-dialog>
 
         <el-dialog v-model="deleteDialogVisible" title="确定删除该访问凭据？" width="800" :close-on-click-modal="false" draggable>
-            <div style="margin-left: 10px; margin-right: 10px">
+            <div style="margin-left: 20px; margin-right: 20px">
                 <div class="hint-message">
                     <el-text>
                         <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
