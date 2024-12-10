@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "build_*"
-      - "master"
+      - "develop*"
   pull_request:
     branches:
       - "master"
@@ -40,6 +40,7 @@ jobs:
 
       - name: Pack Compression
         run: |
+          echo "${{ steps.branch.outputs.branch }}" > dist/version.txt
           mv dist ${{ env.NAME }}
           tar zcvf ${{ env.NAME }}-${{ steps.branch.outputs.branch }}.tar.gz ${{ env.NAME }}
 

@@ -93,17 +93,16 @@ export default {
 
 <style scoped lang="less">
 .list-page-wrap {
-    width: 85%;
-    display: flex;
+    width: 80%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
     .link {
         display: flex;
-        width: 260px;
         background-color: #f7f7f7;
-        margin-right: 10px;
-        margin-left: 10px;
         border-radius: 12px; /* 圆角大小根据需求调整，但通常小于宽度和高度的一半 */
         padding-left: 18px; /* 内部填充，让内容不会紧贴边框 */
-        padding-right: 28px; /* 内部填充，让内容不会紧贴边框     */
+        padding-right: 18px; /* 内部填充，让内容不会紧贴边框     */
         transition: transform 0.1s ease, box-shadow 0.1s ease; /* 平滑过渡效果 */
         cursor: pointer;
     }

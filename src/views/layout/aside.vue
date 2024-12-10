@@ -1,17 +1,18 @@
 <template>
     <div class="el-aside">
-        <div style="padding-left: 20px; padding-right: 20px; margin-bottom: 20px; margin-top: 20px; text-align: center">
-            <h4>控制台</h4>
-        </div>
+        <p style="text-align: center">控制台</p>
         <el-menu :default-active="activePath" unique-opened :collapse="isCollapse">
             <el-menu-item index="/" @click="OnSwitchRoutes('/')">
-                <span>服务导航</span>
+                <el-icon><Position /></el-icon>
+                <template #title><span>服务导航</span></template>
             </el-menu-item>
             <el-menu-item index="/accountInfo" @click="OnSwitchRoutes('/accountInfo')">
-                <span>个人中心</span>
+                <el-icon><User /></el-icon>
+                <template #title><span>个人中心</span></template>
             </el-menu-item>
             <el-menu-item index="/credential" @click="OnSwitchRoutes('/credential')">
-                <span>我的凭据</span>
+                <el-icon><Document /></el-icon>
+                <template #title><span>我的凭据</span></template>
             </el-menu-item>
         </el-menu>
     </div>
