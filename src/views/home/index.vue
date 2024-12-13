@@ -93,9 +93,9 @@ export default {
 
 <style scoped lang="less">
 .list-page-wrap {
-    width: 80%;
+    width: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
     .link {
         display: flex;

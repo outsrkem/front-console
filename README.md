@@ -1,32 +1,60 @@
-# basic-index
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-
+# Console
 
 ### Nginx
+```
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  4096;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    map $http_x_request_id $req_id {
+        default $http_x_request_id;
+        ''      $request_id;
+    }
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" "$http_user_agent" '
+                      '$request_length $request_time $upstream_addr '
+                      '$upstream_response_length $upstream_response_time $upstream_status $req_id';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server_tokens off;
+    include /etc/nginx/conf.d/*.conf;
+}
+```
 
 ```
+# /etc/nginx/conf.d/uias-devops.local.com.conf
+# openssl dhparam -out /etc/nginx/cert/dhparam.pem 2048
+ssl_dhparam "/etc/nginx/cert/dhparam.pem";
+
+# OCSP stapling
+ssl_stapling on;
+ssl_stapling_verify on;
+
+# Flow control
+limit_req_zone $binary_remote_addr zone=one:10m rate=100r/m;
+limit_conn_zone $binary_remote_addr zone=addr:10m;
+limit_conn_log_level warn;
+limit_conn_status 503;
+
 server {
     listen       80;
     server_name  uias-devops.local.com;
@@ -36,17 +64,13 @@ server {
     }
 }
 
-limit_req_zone $binary_remote_addr zone=one:10m rate=100r/m;
-limit_conn_zone $binary_remote_addr zone=addr:10m;
-limit_conn_log_level warn;
-limit_conn_status 503;
 server {
-    listen       20287 ssl http2;
-    #http2 on;
+    listen       30078 ssl;
+    http2 on;
     server_name  uias-devops.local.com;
 
-    ssl_certificate      cert/ybelesch.outsrkem.top;
-    ssl_certificate_key  cert/ybelesch.outsrkem.top;
+    ssl_certificate      cert/server.pem;
+    ssl_certificate_key  cert/server-key.pem;
 
     ssl_session_cache    shared:SSL:1m;
     ssl_session_timeout  5m;
@@ -69,8 +93,7 @@ server {
         limit_req zone=one burst=200 nodelay;
         limit_conn addr 20;
         root   /opt/www;
-        set $subdir $2;
-        try_files /$subdir/$uri $uri/ =404;
+        try_files /$uri $uri/ =404;
         expires 30d;
         add_header Cache-Control "no-cache";
     }
