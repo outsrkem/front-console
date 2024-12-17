@@ -178,6 +178,7 @@ export default {
             editForm: {
                 access: "",
                 create_time: "",
+                description: "",
             },
             editButtonLoading: false,
             // 创建
@@ -264,7 +265,7 @@ export default {
             this.editDialogVisible = true;
             this.editForm.access = val["access"];
             this.editForm.create_time = val["create_time"];
-            this.editForm.description = "";
+            this.editForm.description = val["description"];
         },
         onSubmitEditCredential() {
             this.editButtonLoading = true;
