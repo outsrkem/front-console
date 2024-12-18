@@ -6,6 +6,7 @@
                     <el-space :size="10" spacer="">
                         <span style="padding-left: 160px"></span>
                         <el-link class="header-text line-spacing" href="/console">控制台</el-link>
+                        <el-button type="" link @click="openProjectDialog"> {{ project.current.title }} </el-button>
                     </el-space>
                 </el-row>
                 <el-row>
@@ -29,13 +30,22 @@
                 </el-main>
             </el-container>
         </el-container>
+        <div>
+            <el-dialog v-model="project.dialogTableVisible" title="" width="800">
+                <div class="mb-4" style="margin: 20px">
+                    <el-button v-for="(item, index) in project.data" :key="index" bg text @click="onSelectProject(item)">
+                        {{ item.title }}
+                    </el-button>
+                </div>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
 <script>
 import AppAside from "./aside.vue";
 import { toLoginPage, toUserCenter, toConsole } from "@/utils/common.js";
-import { logout, basicInfo } from "@/api/index.js";
+import { logout, basicInfo, GetProject } from "@/api/index.js";
 export default {
     name: "LayoutIndex",
     components: {
@@ -47,6 +57,11 @@ export default {
             userInfo: {},
             breadcrumb: [], // 面包屑导航
             dateMessage: "",
+            project: {
+                data: [],
+                dialogTableVisible: false,
+                current: {},
+            },
         };
     },
     computed: {},
@@ -71,6 +86,69 @@ export default {
         onConsole() {
             toConsole();
         },
+        // 加载项目数据
+        loadGetProject: async function () {
+            const res = await GetProject();
+            this.project.data = res.payload.items;
+            this.setProject();
+        },
+        // 打开选择项目弹窗
+        openProjectDialog() {
+            this.project.dialogTableVisible = true;
+        },
+        // 选择项目
+        onSelectProject(val) {
+            this.project.current = val;
+            this.project.dialogTableVisible = false;
+            this.setProjectUrl(val);
+            this.setProjectLocalStorage(val);
+        },
+        // 设置项目url参数
+        setProjectUrl(val) {
+            let url = new URL(window.location.href);
+            url.searchParams.set("project", val.name);
+            window.history.pushState({}, "", url);
+        },
+        // 保存项目数据到localStorage
+        setProjectLocalStorage(val) {
+            window.localStorage.setItem("project", JSON.stringify(val));
+        },
+        // 设置默认项目
+        setDefaultProject() {
+            const foundProject = this.project.data.find((project) => project.name === "default");
+            this.project.current = foundProject;
+            this.setProjectLocalStorage(this.project.current);
+            this.setProjectUrl(foundProject);
+        },
+        // 设置当前项目
+        setProject() {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+            const projectName = params.get("project");
+            if (projectName != null) {
+                const foundProject = this.project.data.find((project) => project.name === projectName);
+                if (foundProject == undefined) {
+                    this.setDefaultProject();
+                    return;
+                }
+                this.project.current = foundProject;
+                this.setProjectLocalStorage(this.project.current);
+                return;
+            }
+            // TODO localStorage存储的数据如果异常，则会存在问题
+            const project = window.localStorage.getItem("project");
+            if (project != null) {
+                try {
+                    this.project.current = JSON.parse(project);
+                    this.setProjectUrl(this.project.current);
+                    return;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            // url和localStorage都没有，则加载默认项目
+            this.setDefaultProject();
+        },
         CurrentTime() {
             // 返回一个对象，包含日期、时间和星期几
             const now = new Date();
@@ -88,6 +166,7 @@ export default {
     created() {
         this.GetbasicInfo();
         this.CurrentTime();
+        this.loadGetProject();
     },
 };
 </script>
