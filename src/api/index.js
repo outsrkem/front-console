@@ -54,3 +54,6 @@ export const DeleteCredential = (data) => ajax('/v1/uias/user/credential', 'DELE
 export const EditCredential = (data) => ajax('/v1/uias/user/credential', 'PATCH', null, data)
 // 创建凭据
 export const CreateCredential = (data) => ajax('/v1/uias/user/credential', 'POST', null, data)
+
+// 获取项目
+export const GetProject = () => ajax('/v1/uias/rest/project', 'GET', null)
