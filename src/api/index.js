@@ -23,9 +23,9 @@ export const GetEndpoint = () => ajax('/v1/rest/endpoint', 'GET', null, null)
 // 获取安全验证设备 /v1/uias/security/verification/device
 export const GetSecurityDevice = () => ajax('/v1/uias/security/verification/device', 'GET', null, null)
 // 获取绑定设备的验证码 /v1/uias/captcha/:schema/send
-export const GetCaptcha = (patch) => ajax(`/v1/uias/captcha/${patch.schema}/send`, 'POST', null, null)
+export const GetCaptcha = (paths) => ajax(`/v1/uias/captcha/${paths.schema}/send`, 'POST', null, null)
 // 校验验证码 /v1/uias/captcha/:schema/verify
-export const VerifyCaptcha = (patch, data) => ajax(`/v1/uias/captcha/${patch.schema}/verify`, 'POST', null, data)
+export const VerifyCaptcha = (paths, data) => ajax(`/v1/uias/captcha/${paths.schema}/verify`, 'POST', null, data)
 
 // 重置/解绑VMFA设备 /v1/uias/vmfa/otp/reset
 export const ResetVmfa = () => ajax('/v1/uias/vmfa/otp/reset', 'POST')
@@ -57,3 +57,12 @@ export const CreateCredential = (data) => ajax('/v1/uias/user/credential', 'POST
 
 // 获取项目
 export const GetProject = () => ajax('/v1/uias/rest/project', 'GET', null)
+
+// 查询账号关闭状态 GET /v1/uias/user/account/shut
+export const GetAccountShutState = () => ajax('/v1/uias/user/account/shut', 'GET', null)
+// 关闭账号 POST /v1/uias/user/account/shut
+export const ShutAccount = () => ajax('/v1/uias/user/account/shut', 'POST', null, null)
+// 取消关闭账号 POST /v1/uias/user/account/revocation/shut
+export const RevocationShut = () => ajax('/v1/uias/user/account/revocation/shut', 'POST', null, null)
+// 注销账号 POST /v1/uias/user/account/cancel
+export const CancelAccount = () => ajax('/v1/uias/user/account/cancel', 'POST', null, null)
