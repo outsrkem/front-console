@@ -11,7 +11,7 @@
                     <el-text>
                         <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
                         <span style="margin-left: 5px"
-                            >绑定邮箱、手机、虚拟MF并开启登录保护，能够提升账号的安全性。为防止密码泄露，建议定期修改密码。
+                            >绑定邮箱、手机、虚拟MFA并开启登录保护，能够提升账号的安全性。为防止密码泄露，建议定期修改密码。
                         </span>
                     </el-text>
                 </div>
@@ -116,9 +116,18 @@
                     <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">注销账号</el-divider>
                     <div style="margin-left: 100px; width: 800px">
                         <el-text>{{ cancelmsg }}</el-text>
+                        <br />
+                        <el-text>关闭账号24小时后，再点击注销账号，以便永久注销。</el-text>
+                        <br />
+                        <el-text v-if="accountShutState.state" type="danger"> 账号关闭时间：{{ formatDate(accountShutState.shut_at) }}</el-text>
                     </div>
-                    <div style="margin-left: 100px; margin-top: 10px; width: 800px">
-                        <el-button plain size="small" disabled>关闭账号(暂不支持)</el-button>
+
+                    <div v-if="accountShutState.state" style="margin-left: 100px; margin-top: 10px; width: 800px">
+                        <el-button plain size="small" type="danger" @click="onRevocationShut()">撤销关闭</el-button>
+                        <el-button plain size="small" type="danger" @click="onCancelAccount()">注销账号</el-button>
+                    </div>
+                    <div v-else style="margin-left: 100px; margin-top: 10px; width: 800px">
+                        <el-button plain size="small" @click="onShutAccount()">关闭账号</el-button>
                     </div>
                 </div>
             </div>
@@ -143,6 +152,9 @@
         </div>
     </el-dialog>
     <!-- 绑定vmfa结束 -->
+    <!-- 注销关闭账号开始 -->
+    <CancelAccount ref="CancelAccount" :vdata="accountShutData"></CancelAccount>
+    <!-- 注销关闭账号结束-->
 </template>
 
 <script>
@@ -150,6 +162,8 @@ import { QuestionFilled, WarningFilled, SuccessFilled } from "@element-plus/icon
 import { formatTime } from "@/utils/date.js";
 import vueQr from "vue-qr/src/packages/vue-qr.vue";
 import { basicInfo, CreateVmfa, BindVmfa } from "@/api/index.js";
+import { GetAccountShutState } from "@/api/index.js";
+import CancelAccount from "./safety/cancelAccount.vue";
 export default {
     name: "UserCenterIndex",
     components: {
@@ -157,6 +171,7 @@ export default {
         QuestionFilled,
         WarningFilled,
         SuccessFilled,
+        CancelAccount,
     },
     data() {
         return {
@@ -167,7 +182,7 @@ export default {
             },
             cancelmsg:
                 "如果您不再使用此账号，可以将其注销，账号注销后，数据会被删除且无法恢复。\
-            注销包括关闭账号、注销账号两步。关闭账号24小时后，再点击注销账号，以便永久注销。",
+            注销包括关闭账号、注销账号两步。",
             vmfa: false, // 用于显示vmfa是否绑定
             dialogVisible: false, // 绑定vmfa的弹窗
             vmfaUrl: "",
@@ -176,6 +191,12 @@ export default {
             },
             timeoutId: null,
             loading: true,
+            accountShutState: {
+                state: false,
+            },
+            accountShutData: {
+                title: "",
+            },
         };
     },
     computed: {},
@@ -218,11 +239,17 @@ export default {
                     this.$notify({ title: "绑定失败", duration: 9000, message: msg, type: "warning" });
                 });
         },
+        // 查询账号关闭状态
+        loadGetAccountShutState: async function () {
+            const res = await GetAccountShutState();
+            this.accountShutState = res.payload;
+        },
         onRefresh() {
             this.loading = true;
             clearTimeout(this.timeoutId);
             this.timeoutId = setTimeout(() => {
                 this.GetbasicInfo();
+                this.loadGetAccountShutState();
             }, 350);
         },
         onOpenBindVmfa() {
@@ -245,6 +272,33 @@ export default {
         },
         onSwitchSip() {
             this.$router.push({ name: "safety", query: { type: "sip" } });
+        },
+        onShutAccount() {
+            this.accountShutData = {
+                mark: "shut",
+                captchaKey: "SHOU_ACCOUNT",
+                title: "关闭账号",
+                submitTxt: "确认关闭",
+            };
+            this.$refs.CancelAccount.openDeleteUserDialog();
+        },
+        onRevocationShut() {
+            this.accountShutData = {
+                mark: "revocation",
+                captchaKey: "REVOCATION_SHUT",
+                title: "撤销关闭账号",
+                submitTxt: "确认撤销",
+            };
+            this.$refs.CancelAccount.openDeleteUserDialog();
+        },
+        onCancelAccount() {
+            this.accountShutData = {
+                mark: "cancel",
+                captchaKey: "CANCEL_ACCOUNT",
+                title: "注销账号",
+                submitTxt: "确认注销",
+            };
+            this.$refs.CancelAccount.openDeleteUserDialog();
         },
     },
 };
