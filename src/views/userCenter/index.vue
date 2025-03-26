@@ -87,14 +87,14 @@
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
                                 <span style="margin-left: 5px">已绑定</span>
                             </el-text>
-                            <el-button link type="primary" @click="onResetVmfa()" disabled>重置</el-button>
+                            <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
                         </span>
                         <span v-else>
                             <el-text class="value">
                                 <el-icon class="warning-color"><WarningFilled /></el-icon>
                                 <span style="margin-left: 5px">未绑定</span>
                             </el-text>
-                            <el-button link type="primary" @click="onOpenBindVmfa()" disabled>绑定</el-button>
+                            <el-button link type="primary" @click="onOpenBindVmfa()">绑定</el-button>
                         </span>
                     </div>
                     <el-text class="title">登录保护</el-text>
