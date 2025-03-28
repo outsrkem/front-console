@@ -128,6 +128,15 @@
                 </div>
             </div>
         </el-dialog>
+        <el-dialog v-model="SaveCredentia.DialogVisible" title="保存访问凭据" width="500px" :close-on-click-modal="false">
+            <div class="hint-message">
+                <el-text>
+                    <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
+                    <span style="margin-left: 5px">{{ SaveCredentia.hintText }}</span>
+                </el-text>
+            </div>
+            <pre>{{ SaveCredentia.Data }}</pre>
+        </el-dialog>
 
         <el-dialog v-model="deleteDialogVisible" title="确定删除该访问凭据？" width="800" :close-on-click-modal="false" draggable>
             <div style="margin-left: 20px; margin-right: 20px">
@@ -191,6 +200,12 @@ export default {
             deleteDialogVisible: false,
             deleteFrom: [],
             deleteButtonLoading: false,
+            // 保存
+            SaveCredentia: {
+                DialogVisible: false,
+                Data: null,
+                hintText: "密钥只展示一次，请复制并妥善保存下面的数据。",
+            },
         };
     },
     methods: {
@@ -240,12 +255,15 @@ export default {
         },
         loadCreateCredential: function (data) {
             CreateCredential(data)
-                .then(() => {
+                .then((res) => {
                     this.createDialogVisible = false;
                     this.onRefresh();
                     this.$notify({ duration: 2000, title: "创建成功", type: "success" });
                     this.createButtonLoading = false;
                     this.createForm.description = "";
+                    // 展示保存
+                    this.SaveCredentia.DialogVisible = true;
+                    this.SaveCredentia.Data = res.payload;
                 })
                 .catch((err) => {
                     this.onRefresh();
@@ -320,5 +338,28 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+pre {
+    box-sizing: border-box;
+    /*以下样式是自动换行代码*/
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+    /*以上样式是自动换行代码，需要的加上，不需要的删除*/
+    overflow: auto;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-size: 13px;
+    padding: 9.5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    line-height: 1.2;
+    color: #333333;
+    word-break: break-all;
+    word-wrap: break-word;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    background-color: #f5f5f5;
 }
 </style>
