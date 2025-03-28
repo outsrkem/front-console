@@ -18,8 +18,10 @@
             </div>
             <div class="my_refresh">
                 <el-row>
-                    <el-button size="small" type="primary" style="margin-left: 10px" @click="onOpenCreateCredential()">新增访问凭据</el-button>
-                    <el-text style="margin-left: 18px">您最多可以创建2个访问凭据。</el-text>
+                    <el-button size="small" type="primary" style="margin-left: 10px" @click="onOpenCreateCredential()" :disabled="buttonDisable"
+                        >新增访问凭据</el-button
+                    >
+                    <el-text style="margin-left: 18px">您最多可以创建{{ quota }}个访问凭据。</el-text>
                 </el-row>
                 <el-row>
                     <el-button size="small" type="primary" @click="onRefresh" :loading="loading" style="margin-left: 10px">刷新</el-button>
@@ -33,7 +35,11 @@
                     element-loading-text="加载中"
                     element-loading-spinner="el-icon-loading"
                 >
-                    <el-table-column prop="access" label="密钥ID" />
+                    <el-table-column prop="access" label="密钥ID">
+                        <template #default="scope">
+                            <span class="access-text">{{ scope.row.access }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="description" label="描述" show-overflow-tooltip />
                     <el-table-column prop="status" label="状态">
                         <template #default="scope">
@@ -135,10 +141,18 @@
                     <span style="margin-left: 5px">{{ SaveCredentia.hintText }}</span>
                 </el-text>
             </div>
-            <pre>{{ SaveCredentia.Data }}</pre>
+            <div class="code-container" @click="handleClickCode">
+                <pre class="codepre">{{ SaveCredentia.Data }}</pre>
+                <!-- 使用 v-show 替代 v-if，以便 CSS 过渡生效 -->
+                <transition name="fade">
+                    <div class="overlay" v-if="!SaveCredentia.showFullCode">
+                        <span class="overlay-text">{{ SaveCredentia.overlayText }}</span>
+                    </div>
+                </transition>
+            </div>
         </el-dialog>
 
-        <el-dialog v-model="deleteDialogVisible" title="确定删除该访问凭据？" width="800" :close-on-click-modal="false" draggable>
+        <el-dialog v-model="deleteDialogVisible" title="确定删除该访问凭据？" width="800px" :close-on-click-modal="false" draggable>
             <div style="margin-left: 20px; margin-right: 20px">
                 <div class="hint-message">
                     <el-text>
@@ -167,6 +181,7 @@
 </template>
 
 <script>
+import { msgcon } from "@/utils/message.js";
 import { RemoveFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
 import { formatTime } from "@/utils/date.js";
 import { GetCredential, DeleteCredential, EditCredential, CreateCredential } from "@/api/index.js";
@@ -179,6 +194,7 @@ export default {
     },
     data() {
         return {
+            quota: 0,
             tableData: [],
             loading: true,
             timeoutId: null,
@@ -186,11 +202,12 @@ export default {
             editDialogVisible: false,
             editForm: {
                 access: "",
-                create_time: "",
+                created_at: "",
                 description: "",
             },
             editButtonLoading: false,
             // 创建
+            buttonDisable: true,
             createDialogVisible: false,
             createForm: {
                 description: "",
@@ -204,11 +221,17 @@ export default {
             SaveCredentia: {
                 DialogVisible: false,
                 Data: null,
-                hintText: "密钥只展示一次，请复制并妥善保存下面的数据。",
+                hintText: "密钥信息只展示一次，请复制并妥善保存。",
+                overlayText: "点击查看密钥信息",
+                showFullCode: false,
             },
+            // showFullCode: false,.
         };
     },
     methods: {
+        handleClickCode() {
+            this.SaveCredentia.showFullCode = true;
+        },
         formatDate(time) {
             return formatTime(time);
         },
@@ -216,6 +239,8 @@ export default {
             GetCredential()
                 .then((res) => {
                     this.tableData = res.payload.items;
+                    this.quota = res.payload.quota;
+                    this.buttonDisable = this.quota > this.tableData.length ? false : true;
                     this.loading = false;
                 })
                 .catch(() => {
@@ -228,12 +253,12 @@ export default {
                 .then(() => {
                     this.deleteDialogVisible = false;
                     this.onRefresh();
-                    this.$notify({ duration: 2000, title: "删除成功", type: "success" });
+                    this.$message.success(msgcon("删除成功"));
                     this.deleteButtonLoading = false;
                 })
                 .catch((err) => {
                     let msg = err.data.metadata.message;
-                    this.$notify({ duration: 5000, title: "删除失败", message: msg, type: "error" });
+                    this.$message.error(msgcon("删除成功" + msg));
                     this.deleteButtonLoading = false;
                     this.onRefresh();
                 });
@@ -243,32 +268,32 @@ export default {
                 .then(() => {
                     this.editDialogVisible = false;
                     this.onRefresh();
-                    this.$notify({ duration: 2000, title: "操作成功", type: "success" });
+                    this.$message.success(msgcon("操作成功"));
                     this.editButtonLoading = false;
                 })
                 .catch((err) => {
                     this.onRefresh();
                     let msg = err.data.metadata.message;
-                    this.$notify({ duration: 5000, title: "操作失败", message: msg, type: "error" });
+                    this.$message.error(msgcon("操作失败" + msg));
                     this.editButtonLoading = false;
                 });
         },
-        loadCreateCredential: function (data) {
-            CreateCredential(data)
+        loadCreateCredential: async function (data) {
+            await CreateCredential(data)
                 .then((res) => {
                     this.createDialogVisible = false;
                     this.onRefresh();
-                    this.$notify({ duration: 2000, title: "创建成功", type: "success" });
+                    this.$message.success(msgcon("创建成功"));
                     this.createButtonLoading = false;
                     this.createForm.description = "";
-                    // 展示保存
-                    this.SaveCredentia.DialogVisible = true;
+                    // 展示保存窗口
                     this.SaveCredentia.Data = res.payload;
+                    this.SaveCredentia.DialogVisible = true;
                 })
                 .catch((err) => {
                     this.onRefresh();
                     let msg = err.data.metadata.message;
-                    this.$notify({ duration: 5000, title: "创建失败", message: msg, type: "error" });
+                    this.$message.error(msgcon("创建失败" + msg));
                     this.createButtonLoading = false;
                 });
         },
@@ -291,6 +316,7 @@ export default {
             this.loadEditCredential(data);
         },
         onOpenCreateCredential() {
+            this.SaveCredentia.showFullCode = false; // 初始化模糊层状态
             this.createDialogVisible = true;
         },
         onSubmitCreateCredential() {
@@ -325,6 +351,7 @@ export default {
 </script>
 
 <style scoped lang="less">
+/* 提示消息样式 */
 .hint-message {
     background-color: #deecff;
     padding-top: 7px;
@@ -334,12 +361,16 @@ export default {
     padding-right: 16px;
     margin-bottom: 10px;
 }
+
+/* 刷新样式 */
 .my_refresh {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-pre {
+
+/* 凭据展示格式 */
+.codepre {
     box-sizing: border-box;
     /*以下样式是自动换行代码*/
     white-space: pre-wrap; /* css-3 */
@@ -349,17 +380,73 @@ pre {
     word-wrap: break-word; /* Internet Explorer 5.5+ */
     /*以上样式是自动换行代码，需要的加上，不需要的删除*/
     overflow: auto;
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-family: "Menlo", "Monaco", "Consolas", "Courier New", monospace;
     font-size: 13px;
-    padding: 9.5px;
+    padding: 1px;
     margin-top: 0px;
     margin-bottom: 0px;
     line-height: 1.2;
     color: #333333;
     word-break: break-all;
     word-wrap: break-word;
-    border: 1px solid #cccccc;
     border-radius: 4px;
     background-color: #f5f5f5;
+}
+
+/* 凭据展示弹窗 */
+.code-container {
+    position: relative;
+    max-height: 300px;
+    overflow: auto;
+    margin-top: 10px;
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f5f5f5;
+}
+
+/* 模糊层样式 */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.5s ease; /* 确保过渡属性存在 */
+    opacity: 1; /* 默认显示 */
+}
+
+/* 当 showFullCode = true 时，Vue 会自动添加透明度变化 */
+.overlay-leave-active {
+    opacity: 0; /* 淡出效果 */
+}
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+/* 模糊层文本样式 */
+.overlay-text {
+    font-size: 16px;
+    color: #1476ff;
+    font-weight: bold;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease; /* 文字也加过渡 */
+}
+.access-text {
+    font-family: "Consolas", Courier, monospace;
+    font-size: 16px; /* 可根据需要调整 */
 }
 </style>

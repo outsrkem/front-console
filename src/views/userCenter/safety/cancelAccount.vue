@@ -53,7 +53,7 @@ export default {
     name: "CancelAccount",
     props: {
         vdata: {
-            title: "xxx",
+            title: "",
         },
     },
     data() {
@@ -235,6 +235,7 @@ export default {
             this.loadVerifyCaptcha(this.vdata.captchaKey);
         },
         openDeleteUserDialog() {
+            this.loadGetSecurityDevice();
             // 初始化表单字段
             this.buttonTitle = { GetCaptcha: "点击获取验证码" };
             this.messages = { type: "", text: " " };
@@ -248,9 +249,7 @@ export default {
             this.dialogVisible = false;
         },
     },
-    created() {
-        this.loadGetSecurityDevice();
-    },
+    created() {},
 };
 </script>
 

@@ -82,10 +82,10 @@
                     </div>
                     <div class="line-row">
                         <el-text class="title">虚拟MFA</el-text>
-                        <span v-if="userInfo.vmfa">
+                        <span v-if="userInfo.vmfa !== ''">
                             <el-text class="value">
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
-                                <span style="margin-left: 5px">已绑定</span>
+                                <span style="margin-left: 5px">{{ userInfo.vmfa }}</span>
                             </el-text>
                             <el-button link type="primary" @click="onResetVmfa()">重置</el-button>
                         </span>
