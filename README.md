@@ -1,7 +1,8 @@
 # Console
 
-### Nginx
+### Nginx配置文件
 ```
+# /etc/nginx/nginx.conf
 user  nginx;
 worker_processes  auto;
 
@@ -35,20 +36,24 @@ http {
 
     #gzip  on;
 
+    # The Nginx version number is not displayed
     server_tokens off;
+
+    # openssl dhparam 2048 -out /etc/nginx/cert/dhparam.pem
+    ssl_dhparam "/etc/nginx/cert/dhparam.pem";
+
+    # OCSP stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+    
     include /etc/nginx/conf.d/*.conf;
 }
 ```
 
 ```
-# /etc/nginx/conf.d/uias-devops.local.com.conf
-# openssl dhparam -out /etc/nginx/cert/dhparam.pem 2048
-ssl_dhparam "/etc/nginx/cert/dhparam.pem";
-
-# OCSP stapling
-ssl_stapling on;
-ssl_stapling_verify on;
-
+# /etc/nginx/conf.d/default.conf
 # Flow control
 limit_req_zone $binary_remote_addr zone=one:10m rate=100r/m;
 limit_conn_zone $binary_remote_addr zone=addr:10m;
@@ -57,7 +62,7 @@ limit_conn_status 503;
 
 server {
     listen       80;
-    server_name  uias-devops.local.com;
+    server_name  uias.local.com;
 
     location / {
         return 301 https://$host$request_uri;
@@ -67,7 +72,7 @@ server {
 server {
     listen       30078 ssl;
     http2 on;
-    server_name  uias-devops.local.com;
+    server_name  uias.local.com;
 
     ssl_certificate      cert/server.pem;
     ssl_certificate_key  cert/server-key.pem;
@@ -96,6 +101,7 @@ server {
         try_files /$uri $uri/ =404;
         expires 30d;
         add_header Cache-Control "no-cache";
+        add_header Strict-Transport-Security "max-age=31536000" always;
     }
 
     location /api {

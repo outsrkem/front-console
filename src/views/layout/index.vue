@@ -13,7 +13,7 @@
                     <div>
                         <el-space :size="20" spacer="">
                             <el-text class="header-text line-spacing">{{ dateMessage }}</el-text>
-                            <el-text class="header-text line-spacing">欢迎您，{{ userInfo.username }}</el-text>
+                            <el-text class="header-text line-spacing">欢迎您，{{ displayedName }}</el-text>
                             <el-button class="header-text line-spacing" link @click="onUserCenter">个人信息</el-button>
                             <el-button link @click="Logout">退出</el-button>
                         </el-space>
@@ -64,7 +64,11 @@ export default {
             },
         };
     },
-    computed: {},
+    computed: {
+        displayedName() {
+            return this.userInfo.username + "(" + this.userInfo.account + ")";
+        },
+    },
     methods: {
         LoadLogOut: async function () {
             await logout().then(() => {
