@@ -1,15 +1,14 @@
 <template>
     <div id="app-home">
-      <!-- 路由出口 -->
-      <router-view/>
+        <!-- 路由出口 -->
+        <router-view />
     </div>
 </template>
 
 <script>
 export default {
-  name: 'App',
-}
+    name: "App",
+};
 </script>
 
-<style>
-</style>
+<style></style>
