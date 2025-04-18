@@ -13,7 +13,7 @@
                     <div>
                         <el-space :size="20" spacer="">
                             <el-text class="header-text line-spacing">{{ dateMessage }}</el-text>
-                            <el-text class="header-text line-spacing">欢迎您，{{ userInfo.username }}</el-text>
+                            <el-text class="header-text line-spacing">欢迎您，{{ displayedName }}</el-text>
                             <el-button class="header-text line-spacing" link @click="onUserCenter">个人信息</el-button>
                             <el-button link @click="Logout">退出</el-button>
                         </el-space>
@@ -31,12 +31,12 @@
             </el-container>
         </el-container>
         <div>
-            <el-dialog v-model="project.dialogTableVisible" title="" width="800">
-                <div class="mb-4" style="margin: 20px">
-                    <el-button v-for="(item, index) in project.data" :key="index" bg text @click="onSelectProject(item)">
-                        {{ item.title }}
-                    </el-button>
-                </div>
+            <el-dialog v-model="project.dialogTableVisible" title="请选择项目" width="800">
+                <el-space wrap style="justify-content: space-evenly">
+                    <span v-for="(item, index) in project.data" :key="index">
+                        <el-button style="width: 220px" :type="item.type" @click="onSelectProject(item)">{{ item.title }}</el-button>
+                    </span>
+                </el-space>
             </el-dialog>
         </div>
     </div>
@@ -64,7 +64,11 @@ export default {
             },
         };
     },
-    computed: {},
+    computed: {
+        displayedName() {
+            return this.userInfo.username + "(" + this.userInfo.account + ")";
+        },
+    },
     methods: {
         LoadLogOut: async function () {
             await logout().then(() => {
@@ -99,9 +103,13 @@ export default {
         // 选择项目
         onSelectProject(val) {
             this.project.current = val;
-            this.project.dialogTableVisible = false;
             this.setProjectUrl(val);
             this.setProjectLocalStorage(val);
+            this.setProjectButtonType(val.id);
+            setTimeout(() => {
+                // 延时关闭，优化视觉体验
+                this.project.dialogTableVisible = false;
+            }, 210);
         },
         // 设置项目url参数
         setProjectUrl(val) {
@@ -133,6 +141,7 @@ export default {
                 }
                 this.project.current = foundProject;
                 this.setProjectLocalStorage(this.project.current);
+                this.setProjectButtonType(this.project.current.id);
                 return;
             }
             // TODO localStorage存储的数据如果异常，则会存在问题
@@ -141,6 +150,7 @@ export default {
                 try {
                     this.project.current = JSON.parse(project);
                     this.setProjectUrl(this.project.current);
+                    this.setProjectButtonType(this.project.current.id);
                     return;
                 } catch (e) {
                     console.log(e);
@@ -148,6 +158,19 @@ export default {
             }
             // url和localStorage都没有，则加载默认项目
             this.setDefaultProject();
+        },
+
+        // 设置项目按钮的状态
+        setProjectButtonType(projectId) {
+            let data = this.project.data;
+            return data.map((item) => {
+                if (item.id === projectId) {
+                    item.type = "primary";
+                } else {
+                    item.type = "";
+                }
+                return;
+            });
         },
         CurrentTime() {
             // 返回一个对象，包含日期、时间和星期几

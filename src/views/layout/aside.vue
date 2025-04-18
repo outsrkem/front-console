@@ -8,7 +8,7 @@
             </el-menu-item>
             <el-menu-item index="/accountInfo" @click="OnSwitchRoutes('/accountInfo')">
                 <el-icon><User /></el-icon>
-                <template #title><span>个人中心</span></template>
+                <template #title><span>个人信息</span></template>
             </el-menu-item>
             <el-menu-item index="/credential" @click="OnSwitchRoutes('/credential')">
                 <el-icon><Document /></el-icon>

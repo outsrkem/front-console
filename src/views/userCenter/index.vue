@@ -3,16 +3,14 @@
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <span>个人中心</span>
+                    <span>个人信息</span>
                 </div>
             </template>
             <div v-loading="loading" element-loading-text="正在加载······">
                 <div class="hint-message">
                     <el-text>
                         <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
-                        <span style="margin-left: 5px"
-                            >绑定邮箱、手机、虚拟MFA并开启登录保护，能够提升账号的安全性。为防止密码泄露，建议定期修改密码。
-                        </span>
+                        <span style="margin-left: 5px">绑定邮箱、手机、虚拟MFA并开启登录保护，能够提升账号的安全性。为防止密码泄露，建议定期修改密码。 </span>
                     </el-text>
                 </div>
                 <div>

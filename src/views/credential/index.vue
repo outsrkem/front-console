@@ -24,17 +24,11 @@
                     <el-text style="margin-left: 18px">您最多可以创建{{ quota }}个访问凭据。</el-text>
                 </el-row>
                 <el-row>
-                    <el-button size="small" type="primary" @click="onRefresh" :loading="loading" style="margin-left: 10px">刷新</el-button>
+                    <el-button size="small" type="primary" :icon="Refresh" @click="onRefresh" :loading="loading" style="margin-left: 10px">刷新</el-button>
                 </el-row>
             </div>
             <div>
-                <el-table
-                    :data="tableData"
-                    style="width: 100%"
-                    v-loading="loading"
-                    element-loading-text="加载中"
-                    element-loading-spinner="el-icon-loading"
-                >
+                <el-table :data="tableData" style="width: 100%" v-loading="loading" element-loading-text="加载中" element-loading-spinner="el-icon-loading">
                     <el-table-column prop="access" label="密钥ID">
                         <template #default="scope">
                             <span class="access-text">{{ scope.row.access }}</span>
@@ -43,14 +37,14 @@
                     <el-table-column prop="description" label="描述" show-overflow-tooltip />
                     <el-table-column prop="status" label="状态">
                         <template #default="scope">
-                            <div class="icon" v-if="scope.row.status === 'active'" style="display: flex; align-items: center">
-                                <el-icon :size="14" style="color: #50d4ab; padding-right: 5px"><SuccessFilled /></el-icon>
+                            <el-text v-if="scope.row.status === 'active'">
+                                <el-icon style="color: #50d4ab; padding-right: 5px"><SuccessFilled /></el-icon>
                                 <span>启用</span>
-                            </div>
-                            <div class="icon" v-else>
-                                <el-icon :size="14" style="color: #adb0b8; padding-right: 5px"><RemoveFilled /></el-icon>
+                            </el-text>
+                            <el-text v-else>
+                                <el-icon style="color: #adb0b8; padding-right: 5px"><RemoveFilled /></el-icon>
                                 <span>停用</span>
-                            </div>
+                            </el-text>
                         </template>
                     </el-table-column>
                     <el-table-column prop="create_time" label="创建时间">
@@ -91,8 +85,7 @@
                             maxlength="60"
                             show-word-limit
                             :autosize="{ minRows: 3, maxRows: 3 }"
-                            placeholder="请输入描述信息"
-                        />
+                            placeholder="请输入描述信息" />
                     </el-form-item>
                 </el-form>
                 <div style="display: flex; justify-content: flex-end; align-items: center">
@@ -122,8 +115,7 @@
                             maxlength="60"
                             show-word-limit
                             :autosize="{ minRows: 3, maxRows: 3 }"
-                            placeholder="凭据描述信息"
-                        />
+                            placeholder="凭据描述信息" />
                     </el-form-item>
                 </el-form>
                 <div style="display: flex; justify-content: flex-end; align-items: center">
@@ -181,6 +173,7 @@
 </template>
 
 <script>
+import { Refresh } from "@element-plus/icons-vue";
 import { msgcon } from "@/utils/message.js";
 import { RemoveFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
 import { formatTime } from "@/utils/date.js";
@@ -191,6 +184,11 @@ export default {
         WarningFilled,
         RemoveFilled,
         SuccessFilled,
+    },
+    setup() {
+        return {
+            Refresh,
+        };
     },
     data() {
         return {
