@@ -13,7 +13,7 @@
                         <div v-if="!(item.platform === 'mobile')">
                             <a class="block-link" :href="item.link">
                                 <div class="link">
-                                    <h1>{{ item.title }}</h1>
+                                    <h1 class="title">{{ item.title }}</h1>
                                 </div>
                             </a>
                         </div>
@@ -125,5 +125,14 @@ export default {
     padding-left: 5px;
     padding-right: 5px;
     margin-bottom: 30px;
+}
+.main {
+    background-color: #e9eef3;
+    padding: 10px;
+}
+.title {
+    font-size: 1em;
+    margin-block-start: 1.33em;
+    margin-block-end: 1.33em;
 }
 </style>

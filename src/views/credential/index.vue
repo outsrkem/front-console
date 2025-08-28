@@ -1,9 +1,21 @@
 <template>
     <div>
+        <div style="margin-bottom: 10px">
+            <el-card>
+                <div>
+                    <el-descriptions title="我的凭证" :column="2">
+                        <el-descriptions-item label="用户名"></el-descriptions-item>
+                        <el-descriptions-item label="账号名"></el-descriptions-item>
+                        <el-descriptions-item label="用户ID"></el-descriptions-item>
+                        <el-descriptions-item label="账号ID"></el-descriptions-item>
+                    </el-descriptions>
+                </div>
+            </el-card>
+        </div>
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <span>我的凭据</span>
+                    <span>访问凭据</span>
                 </div>
             </template>
             <div>
@@ -18,15 +30,16 @@
             </div>
             <div class="my_refresh">
                 <el-row>
-                    <el-button size="small" type="primary" style="margin-left: 10px" @click="onOpenCreateCredential()" :disabled="buttonDisable"
-                        >新增访问凭据</el-button
-                    >
+                    <el-button size="small" type="primary" style="margin-left: 10px" @click="onOpenCreateCredential()" :disabled="buttonDisable">
+                        新增访问凭据
+                    </el-button>
                     <el-text style="margin-left: 18px">您最多可以创建{{ quota }}个访问凭据。</el-text>
                 </el-row>
                 <el-row>
                     <el-button size="small" type="primary" :icon="Refresh" @click="onRefresh" :loading="loading" style="margin-left: 10px">刷新</el-button>
                 </el-row>
             </div>
+
             <div>
                 <el-table :data="tableData" style="width: 100%" v-loading="loading" element-loading-text="加载中" element-loading-spinner="el-icon-loading">
                     <el-table-column prop="access" label="密钥ID">

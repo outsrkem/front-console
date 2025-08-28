@@ -1,5 +1,5 @@
 <template>
-    <div class="el-aside">
+    <el-aside class="aside" style="width: auto">
         <p style="text-align: center">控制台</p>
         <el-menu :default-active="activePath" unique-opened :collapse="isCollapse">
             <el-menu-item index="/" @click="OnSwitchRoutes('/')">
@@ -15,7 +15,7 @@
                 <template #title><span>我的凭据</span></template>
             </el-menu-item>
         </el-menu>
-    </div>
+    </el-aside>
 </template>
 
 <script>

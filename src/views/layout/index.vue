@@ -1,43 +1,33 @@
 <template>
-    <div class="custom-layout">
-        <el-container>
-            <el-header class="header-content">
-                <el-row>
-                    <el-space :size="10" spacer="">
-                        <span style="padding-left: 160px"></span>
-                        <el-link class="header-text line-spacing" href="/console">控制台</el-link>
-                        <el-button type="" link @click="openProjectDialog"> {{ project.current.title }} </el-button>
-                    </el-space>
-                </el-row>
-                <el-row>
-                    <div>
-                        <el-space :size="20" spacer="">
-                            <el-text class="header-text line-spacing">{{ dateMessage }}</el-text>
-                            <el-text class="header-text line-spacing">欢迎您，{{ displayedName }}</el-text>
-                            <el-button class="header-text line-spacing" link @click="onUserCenter">个人信息</el-button>
-                            <el-button link @click="Logout">退出</el-button>
-                        </el-space>
-                    </div>
-                </el-row>
-            </el-header>
-            <el-container class="main-content">
-                <el-aside class="aside" width="auth">
-                    <app-aside class="aside-menu" />
-                </el-aside>
-                <el-main class="main">
-                    <!-- 子路由出口 -->
-                    <router-view />
-                </el-main>
-            </el-container>
-        </el-container>
-        <div>
-            <el-dialog v-model="project.dialogTableVisible" title="请选择项目" width="800">
-                <el-space wrap style="justify-content: space-evenly">
-                    <span v-for="(item, index) in project.data" :key="index">
-                        <el-button style="width: 220px" :type="item.type" @click="onSelectProject(item)">{{ item.title }}</el-button>
-                    </span>
+    <div class="admin-layout">
+        <header class="header-content">
+            <div class="header-left">
+                <el-space :size="10" spacer="">
+                    <span style="padding-left: 160px"></span>
+                    <el-icon class="console-icon"><Menu /></el-icon>
+                    <el-link class="console-name" href="/console">控制台</el-link>
                 </el-space>
-            </el-dialog>
+            </div>
+            <div class="header-right">
+                <span>{{ dateMessage }}</span>
+                <span>欢迎您，{{ displayedName }}</span>
+                <div>
+                    <el-button link @click="onUserCenter">个人信息</el-button>
+                </div>
+                <div>
+                    <el-button link @click="Logout">退出</el-button>
+                </div>
+            </div>
+        </header>
+        <!-- 2. 主体内容区（左右分栏） -->
+        <div class="admin-main">
+            <aside class="admin-sidebar">
+                <app-aside />
+            </aside>
+            <main class="admin-content">
+                <!-- 子路由出口 -->
+                <router-view />
+            </main>
         </div>
     </div>
 </template>
@@ -45,7 +35,7 @@
 <script>
 import AppAside from "./aside.vue";
 import { toLoginPage, toUserCenter, toConsole } from "@/utils/common.js";
-import { logout, basicInfo, GetProject } from "@/api/index.js";
+import { logout, basicInfo } from "@/api/index.js";
 export default {
     name: "LayoutIndex",
     components: {
@@ -57,11 +47,6 @@ export default {
             userInfo: {},
             breadcrumb: [], // 面包屑导航
             dateMessage: "",
-            project: {
-                data: [],
-                dialogTableVisible: false,
-                current: {},
-            },
         };
     },
     computed: {
@@ -90,88 +75,6 @@ export default {
         onConsole() {
             toConsole();
         },
-        // 加载项目数据
-        loadGetProject: async function () {
-            const res = await GetProject();
-            this.project.data = res.payload.items;
-            this.setProject();
-        },
-        // 打开选择项目弹窗
-        openProjectDialog() {
-            this.project.dialogTableVisible = true;
-        },
-        // 选择项目
-        onSelectProject(val) {
-            this.project.current = val;
-            this.setProjectUrl(val);
-            this.setProjectLocalStorage(val);
-            this.setProjectButtonType(val.id);
-            setTimeout(() => {
-                // 延时关闭，优化视觉体验
-                this.project.dialogTableVisible = false;
-            }, 210);
-        },
-        // 设置项目url参数
-        setProjectUrl(val) {
-            let url = new URL(window.location.href);
-            url.searchParams.set("project", val.name);
-            window.history.pushState({}, "", url);
-        },
-        // 保存项目数据到localStorage
-        setProjectLocalStorage(val) {
-            window.localStorage.setItem("project", JSON.stringify(val));
-        },
-        // 设置默认项目
-        setDefaultProject() {
-            const foundProject = this.project.data.find((project) => project.name === "default");
-            this.project.current = foundProject;
-            this.setProjectLocalStorage(this.project.current);
-            this.setProjectUrl(foundProject);
-        },
-        // 设置当前项目
-        setProject() {
-            const url = new URL(window.location.href);
-            const params = new URLSearchParams(url.search);
-            const projectName = params.get("project");
-            if (projectName != null) {
-                const foundProject = this.project.data.find((project) => project.name === projectName);
-                if (foundProject == undefined) {
-                    this.setDefaultProject();
-                    return;
-                }
-                this.project.current = foundProject;
-                this.setProjectLocalStorage(this.project.current);
-                this.setProjectButtonType(this.project.current.id);
-                return;
-            }
-            // TODO localStorage存储的数据如果异常，则会存在问题
-            const project = window.localStorage.getItem("project");
-            if (project != null) {
-                try {
-                    this.project.current = JSON.parse(project);
-                    this.setProjectUrl(this.project.current);
-                    this.setProjectButtonType(this.project.current.id);
-                    return;
-                } catch (e) {
-                    console.log(e);
-                }
-            }
-            // url和localStorage都没有，则加载默认项目
-            this.setDefaultProject();
-        },
-
-        // 设置项目按钮的状态
-        setProjectButtonType(projectId) {
-            let data = this.project.data;
-            return data.map((item) => {
-                if (item.id === projectId) {
-                    item.type = "primary";
-                } else {
-                    item.type = "";
-                }
-                return;
-            });
-        },
         CurrentTime() {
             // 返回一个对象，包含日期、时间和星期几
             const now = new Date();
@@ -189,42 +92,91 @@ export default {
     created() {
         this.GetbasicInfo();
         this.CurrentTime();
-        this.loadGetProject();
     },
 };
 </script>
 
 <style scoped lang="less">
-.custom-layout {
+.admin-layout {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    overflow: hidden;
+    margin: 0; /* 清除body默认margin导致的留白 */
+    padding: 0;
+    min-width: 1200px;
 }
+
 .header-content {
     height: 50px;
+    padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #ccc;
     background-color: #ffffff;
-    z-index: 1000;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-.main-content {
-    padding-top: 50px;
-    position: fixed;
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 图标与文字间距 */
+}
+
+.console-icon {
+    font-size: 20px;
+    color: #409eff;
+}
+
+.console-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: #333333;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* 文字与按钮间距 */
+    color: #666666;
+    font-size: 14px;
+}
+
+.admin-main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
     flex-grow: 1;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    .aside {
-        background-color: #d3dce6;
-        .aside-menu {
-            height: 100%;
-        }
+}
+
+/* 左侧菜单样式（默认白色） */
+.admin-sidebar {
+    width: 200px; /* 固定菜单宽度 */
+    background-color: #ffffff; /* 菜单默认白色 */
+    border-right: 1px solid #e5e7eb; /* 右侧分隔线 */
+}
+
+/* 右侧内容区样式（灰色底色） */
+.admin-content {
+    flex: 1; /* 占满剩余宽度 */
+    background-color: #f9fafb; /* 灰色底色 */
+    padding: 10px; /* 内边距，避免内容贴边 */
+    overflow-y: auto; /* 内容超出时仅右侧出现垂直滚动条 */
+    height: 100%; /* 强制占满主体区高度 */
+}
+
+/* 4. 修复移动端菜单宽度：避免菜单过宽导致横向滚动 */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: auto; /* 移动端缩小菜单宽度，适配小屏幕 */
     }
-    .main {
-        background-color: #e9eef3;
-        padding: 10px;
+    .system-name {
+        font-size: 14px; /* 缩小页眉文字，避免换行 */
+    }
+    .admin-content {
+        background-color: #fff; /* 设置白底 */
+        padding: 0px; /* 取消边距 */
     }
 }
 </style>
