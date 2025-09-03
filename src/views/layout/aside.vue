@@ -11,8 +11,12 @@
                 <template #title><span>个人信息</span></template>
             </el-menu-item>
             <el-menu-item index="/credential" @click="OnSwitchRoutes('/credential')">
-                <el-icon><Document /></el-icon>
+                <el-icon><Lock /></el-icon>
                 <template #title><span>我的凭据</span></template>
+            </el-menu-item>
+            <el-menu-item index="/myorder" @click="OnSwitchRoutes('/myorder')">
+                <el-icon><Tickets /></el-icon>
+                <template #title><span>我的订单</span></template>
             </el-menu-item>
         </el-menu>
     </el-aside>

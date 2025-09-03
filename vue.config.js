@@ -1,7 +1,7 @@
 const { defineConfig } = require("@vue/cli-service");
 module.exports = defineConfig({
     transpileDependencies: true,
-    publicPath: "",
+    publicPath: "/console/",
 
     pages: {
         index: "src/views/main.js",
@@ -14,7 +14,7 @@ module.exports = defineConfig({
     devServer: {
         proxy: {
             "/": {
-                target: "https://uias.localvm.outsrkem.top:30078/",
+                target: "http://turtle.service.local:35860",
                 changeOrigin: true,
                 secure: false,
                 pathRewrite: {
