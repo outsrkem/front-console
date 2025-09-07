@@ -1,17 +1,5 @@
 <template>
     <div>
-        <div style="margin-bottom: 10px">
-            <el-card>
-                <div>
-                    <el-descriptions title="我的凭证" :column="2">
-                        <el-descriptions-item label="用户名"></el-descriptions-item>
-                        <el-descriptions-item label="账号名"></el-descriptions-item>
-                        <el-descriptions-item label="用户ID"></el-descriptions-item>
-                        <el-descriptions-item label="账号ID"></el-descriptions-item>
-                    </el-descriptions>
-                </div>
-            </el-card>
-        </div>
         <el-card>
             <template #header>
                 <div class="card-header">

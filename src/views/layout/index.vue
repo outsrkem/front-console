@@ -2,11 +2,13 @@
     <div class="admin-layout">
         <header class="header-content">
             <div class="header-left">
-                <el-space :size="10" spacer="">
-                    <span style="padding-left: 160px"></span>
-                    <el-icon class="console-icon"><Menu /></el-icon>
-                    <el-link class="console-name" href="/console">控制台</el-link>
-                </el-space>
+                <span style="padding-left: 160px"></span>
+                <a href="/console" style="text-decoration: none; color: inherit">
+                    <div class="header-left">
+                        <el-icon class="console-icon"><Menu /></el-icon>
+                        <span class="console-name" href="/console">控制台</span>
+                    </div>
+                </a>
             </div>
             <div class="header-right">
                 <span>{{ dateMessage }}</span>

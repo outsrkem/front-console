@@ -1,7 +1,7 @@
 <template>
-    <div v-if="Mobile">
+    <div>
         <!-- 电脑端页面 -->
-        <el-card>
+        <el-card style="min-height: 300px">
             <template #header>
                 <div class="card-header">
                     <span>服务导航</span>
@@ -22,24 +22,6 @@
             </el-container>
         </el-card>
     </div>
-    <div v-else>
-        <!-- 手机端页面 -->
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center">
-            <div>
-                <h3 style="margin-bottom: 5px">Console</h3>
-            </div>
-            <div style="margin-bottom: 20px">
-                <el-text size="small">欢迎您，{{ userInfo.username }}。更多功能请使用电脑端访问。</el-text>
-            </div>
-        </div>
-        <div class="mobile-link" v-for="item in endpoint" :key="item.id">
-            <div v-if="!(item.platform === 'pc')">
-                <el-button style="width: 100%" size="large" type="primary" plain @click="onSkipTo(item.link)">
-                    {{ item.title }}
-                </el-button>
-            </div>
-        </div>
-    </div>
 </template>
 
 <script>
@@ -48,19 +30,11 @@ export default {
     name: "HomeIndex",
     data() {
         return {
-            Mobile: true, // 区别是手机端还是电脑端
             endpoint: [], // [{"name":"xxx xxx","title":"xxx","link":"/xxx","platform":"pc"}]
             userInfo: {},
         };
     },
     methods: {
-        isMobile() {
-            //该方法用于判断是否进入手机端
-            let flag = navigator.userAgent.match(
-                /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i,
-            );
-            return flag;
-        },
         onSkipTo(val) {
             window.location.href = val;
         },
@@ -79,12 +53,6 @@ export default {
     },
     created() {
         this.$globalBus.emit("updateActivePath", "/");
-        if (this.isMobile()) {
-            this.Mobile = false;
-            this.$router.push({ name: "homeMobile" });
-        } else {
-            this.$router.push({ name: "homePc" });
-        }
         this.GetbasicInfo();
         this.loadGetEndpoint();
     },
@@ -92,6 +60,11 @@ export default {
 </script>
 
 <style scoped lang="less">
+.title {
+    font-size: 1em;
+    margin-block-start: 1.33em;
+    margin-block-end: 1.33em;
+}
 .list-page-wrap {
     width: 100%;
     display: grid;
@@ -119,20 +92,5 @@ export default {
     .block-link h1 {
         color: #000000;
     }
-}
-
-.mobile-link {
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-bottom: 30px;
-}
-.main {
-    background-color: #e9eef3;
-    padding: 10px;
-}
-.title {
-    font-size: 1em;
-    margin-block-start: 1.33em;
-    margin-block-end: 1.33em;
 }
 </style>

@@ -6,7 +6,7 @@
                     <span>个人信息</span>
                 </div>
             </template>
-            <div v-loading="loading" element-loading-text="正在加载······">
+            <div v-loading="loading">
                 <div class="hint-message">
                     <el-text>
                         <el-icon style="color: #1476ff"><WarningFilled /></el-icon>
