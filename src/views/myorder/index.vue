@@ -3,12 +3,12 @@
         <el-card>
             <template #header>
                 <div class="card-header">
-                    <span>我的订单</span>
+                    <span>我的服务</span>
                 </div>
             </template>
             <div class="my_refresh">
                 <el-row>
-                    <el-button size="small" type="primary" style="margin-left: 10px">创建新订单</el-button>
+                    <el-button size="small" type="primary" style="margin-left: 10px" @click="onCreateNewSvc">创建新服务</el-button>
                 </el-row>
                 <el-row>
                     <el-button size="small" type="primary" :icon="Refresh" @click="onRefresh" :loading="loading" style="margin-left: 10px">刷新</el-button>
@@ -19,11 +19,14 @@
                 <el-table :data="order" style="width: 100%" v-loading="loading">
                     <el-table-column prop="spec_name" label="产品名称" show-overflow-tooltip />
                     <el-table-column prop="spec_sku" label="产品规格" show-overflow-tooltip />
-                    <el-table-column prop="order_time" label="创建时间">
+                    <el-table-column label="创建时间">
                         <template #default="scope">{{ formatDate(scope.row.order_time) }}</template>
                     </el-table-column>
-                    <el-table-column prop="expire_time" label="到期时间">
-                        <template #default="scope">{{ formatDate(scope.row.order_time) }}</template>
+                    <el-table-column label="到期时间">
+                        <template #default="scope">
+                            <span v-if="scope.row.expire_time === -1">永久有效</span>
+                            <span v-else>{{ formatDate(scope.row.expire_time) }}</span>
+                        </template>
                     </el-table-column>
                 </el-table>
             </div>
@@ -85,6 +88,9 @@ export default {
                 .finally(() => {
                     this.loading = false;
                 });
+        },
+        onCreateNewSvc() {
+            alert("请联系管理员。");
         },
     },
     created() {

@@ -16,7 +16,7 @@
             </el-menu-item>
             <el-menu-item index="/myorder" @click="OnSwitchRoutes('/myorder')">
                 <el-icon><Tickets /></el-icon>
-                <template #title><span>我的订单</span></template>
+                <template #title><span>我的服务</span></template>
             </el-menu-item>
         </el-menu>
     </el-aside>
