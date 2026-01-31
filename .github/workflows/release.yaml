@@ -33,6 +33,7 @@ jobs:
 
             - name: Pack Compression
               run: |
+                  echo "${{ steps.branch-names.outputs.tag }}" > dist/version.txt
                   mv dist ${{ env.NAME }}
                   tar zcvf ${{ env.NAME }}-${{ steps.branch-names.outputs.tag }}.tar.gz ${{ env.NAME }}
 
