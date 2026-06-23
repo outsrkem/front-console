@@ -131,45 +131,51 @@
             </div>
         </el-card>
     </div>
-    <!-- 绑定vmfa开始 -->
-    <el-dialog v-model="dialogVisible" :close-on-click-modal="false" title="绑定VMFA" width="500">
-        <div style="display: flex; position: relative">
-            <div>
-                <el-form :model="form" label-width="auto">
-                    <el-form-item label="使用虚拟MFA程序扫描二维码">
-                        <vue-qr :text="vmfaUrl" :correctLevel="3"></vue-qr>
-                    </el-form-item>
-                    <el-form-item label="获取动态码并输入">
-                        <el-input v-model="form.bindVmfaCaptcha" placeholder="6位数字验证码" />
-                    </el-form-item>
-                    <el-form-item label="点击按钮绑定">
-                        <el-button style="width: 100%" type="primary" @click="onBindVmfa()">绑定VMFA设备</el-button>
-                    </el-form-item>
-                </el-form>
+    <!-- 绑定vmfa弹出 -->
+    <el-dialog v-model="dialogVisible" :close-on-click-modal="false" title="绑定VMFA" width="300">
+        <div style="display: flex; justify-content: center; padding: 10px">
+            <div style="width: 200px">
+                <div style="margin-bottom: 16px">
+                    <div style="font-size: 14px; margin-bottom: 8px; color: #303133">使用虚拟MFA程序扫描二维码</div>
+                    <div class="qr-border-box">
+                        <SvgQrcode :content="vmfaUrl" :size="120" :padding="1" />
+                    </div>
+                </div>
+                <div style="margin-bottom: 16px">
+                    <div style="font-size: 14px; margin-bottom: 8px; color: #303133">输入动态验证码</div>
+                    <el-input
+                        v-model="form.bindVmfaCaptcha"
+                        placeholder="6位数字验证码"
+                        maxlength="6"
+                        @input="form.bindVmfaCaptcha = form.bindVmfaCaptcha.trim()" />
+                </div>
+                <div>
+                    <el-button style="width: 100%" type="primary" @click="BindVmfa()">绑定VMFA设备</el-button>
+                </div>
             </div>
         </div>
     </el-dialog>
-    <!-- 绑定vmfa结束 -->
-    <!-- 注销关闭账号开始 -->
+
+    <!-- 注销关闭账号 -->
     <CancelAccount ref="CancelAccount" :vdata="accountShutData"></CancelAccount>
-    <!-- 注销关闭账号结束-->
 </template>
 
 <script>
 import { QuestionFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
-import { formatTime } from "@/utils/date.js";
-import vueQr from "vue-qr/src/packages/vue-qr.vue";
-import { basicInfo, CreateVmfa, BindVmfa } from "@/api/index.js";
-import { GetAccountShutState } from "@/api/index.js";
+import SvgQrcode from "../../components/SvgQrcode.vue";
+import { msgcon } from "../..//utils/message.js";
+import { formatTime } from "../../utils/date.js";
+import { basicInfo, CreateVmfa, BindVmfa, GetAccountShutState } from "../../api/index.js";
 import CancelAccount from "./safety/cancelAccount.vue";
+
 export default {
     name: "UserCenterIndex",
     components: {
-        vueQr,
         QuestionFilled,
         WarningFilled,
         SuccessFilled,
         CancelAccount,
+        SvgQrcode,
     },
     data() {
         return {
@@ -222,17 +228,28 @@ export default {
             this.dialogVisible = true; // 打开绑定vmfa对话框
         },
         BindVmfa: function () {
+            const captcha = this.form.bindVmfaCaptcha;
+            if (!captcha) {
+                this.$message.warning(msgcon("请输入验证码"));
+                return;
+            }
+            const reg = /^[0-9]{6}$/;
+            if (!reg.test(captcha)) {
+                this.$message.warning(msgcon("验证码必须为6位数字"));
+                return;
+            }
             const data = {
-                vmfa: { totp: { captcha: this.form.bindVmfaCaptcha } },
+                vmfa: { totp: { captcha: captcha } },
             };
             BindVmfa(data)
                 .then(() => {
                     this.$notify({ title: "绑定成功", duration: 2000, type: "success" });
                     this.dialogVisible = false;
                     this.onRefresh();
+                    this.form.bindVmfaCaptcha = "";
                 })
                 .catch((err) => {
-                    let msg = err.data.metadata;
+                    let msg = err.data?.metadata || "绑定验证码校验失败";
                     console.log(err);
                     this.$notify({ title: "绑定失败", duration: 9000, message: msg, type: "warning" });
                 });
@@ -332,5 +349,11 @@ export default {
     padding-left: 16px;
     padding-right: 16px;
     margin-bottom: 10px;
+}
+.qr-border-box {
+    border: 1px solid #333;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
