@@ -1,0 +1,80 @@
+name: Devops CI
+
+on:
+    push:
+        branches:
+            - "build/*"
+
+env:
+    NAME: console
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "24.x"
+
+            # Extract version and release number from branch name (build/1.0.000-rc.2 → 1.0.000 + rc.2)
+            - name: Get version and release from branch
+              id: get_version
+              run: |
+                  BRANCH_NAME=${GITHUB_REF#refs/heads/}
+                  TMP=${BRANCH_NAME#build/}
+                  VERSION=${TMP%-*}
+                  RELEASE=${TMP#*-}
+                  echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+                  echo "RELEASE=$RELEASE" >> $GITHUB_OUTPUT
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: npm run build
+
+            - name: Pack tar.gz
+              run: |
+                  product="${{ env.NAME }}-${{ steps.get_version.outputs.VERSION }}"
+                  tar zcvf "${product}.tar.gz" --transform "s/^dist/${product}/" dist
+
+            # Build RPM with Docker & rpmbuild correctly
+            - name: Build RPM package with rpmbuild
+              env:
+                  RPMSPEC: console.spec
+                  RPMBUILDBIMG: outsrkem/rpmbuild:4.14.3-rocky8
+                  TARNAME: ${{ env.NAME }}-${{ steps.get_version.outputs.VERSION }}.tar.gz
+              run: |
+                  docker run --rm \
+                    -v "$(pwd)/.cid/${RPMSPEC}:/root/rpmbuild/SPECS/${RPMSPEC}" \
+                    -v "$(pwd)/${TARNAME}:/root/rpmbuild/SOURCES/${TARNAME}" \
+                    -v "$(pwd)/rpms:/root/rpmbuild/RPMS" \
+                    -w /root/rpmbuild ${RPMBUILDBIMG} \
+                    bash -c "rpmbuild -bb \
+                    --define \"_version ${{ steps.get_version.outputs.VERSION }}\" \
+                    --define \"_release ${{ steps.get_version.outputs.RELEASE }}\" \
+                    --define \"dist .el6\" SPECS/${RPMSPEC}"
+
+            # Upload the generated RPM package to the repository
+            - name: Upload to HuaweiCloud OBS
+              env:
+                  AK: ${{ secrets.HW_ACCESS_KEY_ID }}
+                  SK: ${{ secrets.HW_SECRET_ACCESS_KEY }}
+                  OBS_ENDPOINT: obs.cn-north-4.myhuaweicloud.com
+                  OBS_BUCKET: 110254b2cf424535aec05afe14ab8497
+              run: |
+                  wget -q https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz
+                  tar -xzf obsutil_linux_amd64.tar.gz
+                  mv obsutil_linux_amd64_* obsutil
+                  chmod 755 obsutil/obsutil
+
+                  ./obsutil/obsutil config -i="$AK" -k="$SK" -e="$OBS_ENDPOINT"
+
+                  find . -type f -name "console-*.rpm" | while read file; do
+                    echo "Uploading RPM: $file"
+                    ./obsutil/obsutil cp "$file" obs://$OBS_BUCKET/${{ env.NAME }}/
+                  done
