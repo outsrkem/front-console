@@ -95,21 +95,31 @@
                             <el-button link type="primary" @click="onOpenBindVmfa()">绑定</el-button>
                         </span>
                     </div>
-                    <el-text class="title">登录保护</el-text>
-                    <span v-if="userInfo.sip === 'ON'">
+                    <div class="line-row">
+                        <el-text class="title">登录保护</el-text>
+                        <span v-if="userInfo.sip === 'ON'">
+                            <el-text class="value">
+                                <el-icon class="success-color"><SuccessFilled /></el-icon>
+                                <span style="margin-left: 5px">已开启</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onSwitchSip()">关闭</el-button>
+                        </span>
+                        <span v-else>
+                            <el-text class="value">
+                                <el-icon class="warning-color"><WarningFilled /></el-icon>
+                                <span style="margin-left: 5px">未开启</span>
+                            </el-text>
+                            <el-button link type="primary" @click="onSwitchSip()">开启</el-button>
+                        </span>
+                    </div>
+                    <div class="line-row">
+                        <el-text class="title">会话空闲</el-text>
                         <el-text class="value">
-                            <el-icon class="success-color"><SuccessFilled /></el-icon>
-                            <span style="margin-left: 5px">已开启</span>
+                            <el-icon class="success-color"><Clock /></el-icon>
+                            <span style="margin-left: 5px">{{ formatSessionTime }}</span>
                         </el-text>
-                        <el-button link type="primary" @click="onSwitchSip()">关闭</el-button>
-                    </span>
-                    <span v-else>
-                        <el-text class="value">
-                            <el-icon class="warning-color"><WarningFilled /></el-icon>
-                            <span style="margin-left: 5px">未开启</span>
-                        </el-text>
-                        <el-button link type="primary" @click="onSwitchSip()">开启</el-button>
-                    </span>
+                        <el-button link type="primary" @click="OpenSIT()">修改</el-button>
+                    </div>
 
                     <el-divider style="margin-top: 20px; margin-bottom: 20px" content-position="left">注销账号</el-divider>
                     <div style="margin-left: 100px; width: 800px">
@@ -156,17 +166,22 @@
         </div>
     </el-dialog>
 
+    <!-- 修改会话超时弹窗 -->
+    <Sit ref="Sit" :idle-timeout-str="userInfo.session_idle_timeout" @update:idle-timeout-str="userInfo.session_idle_timeout = $event" />
+
     <!-- 注销关闭账号 -->
     <CancelAccount ref="CancelAccount" :vdata="accountShutData"></CancelAccount>
 </template>
 
 <script>
 import { QuestionFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
-import SvgQrcode from "../../components/SvgQrcode.vue";
-import { msgcon } from "../..//utils/message.js";
-import { formatTime } from "../../utils/date.js";
 import { basicInfo, CreateVmfa, BindVmfa, GetAccountShutState } from "../../api/index.js";
+import { msgcon } from "../../utils/message.js";
+import { formatTime } from "../../utils/date.js";
+import { withDelay } from "../../utils/common.js";
+import SvgQrcode from "../../components/SvgQrcode.vue";
 import CancelAccount from "./safety/cancelAccount.vue";
+import Sit from "./safety/sit.vue";
 
 export default {
     name: "UserCenterIndex",
@@ -176,6 +191,7 @@ export default {
         SuccessFilled,
         CancelAccount,
         SvgQrcode,
+        Sit,
     },
     data() {
         return {
@@ -193,7 +209,6 @@ export default {
             form: {
                 bindVmfaCaptcha: "",
             },
-            timeoutId: null,
             loading: true,
             accountShutState: {
                 state: false,
@@ -203,7 +218,13 @@ export default {
             },
         };
     },
-    computed: {},
+    computed: {
+        formatSessionTime() {
+            const val = this.userInfo?.session_idle_timeout;
+            if (!val) return "";
+            return val.replace(/([0-9]+)h/g, "$1小时").replace(/([0-9]+)m/g, "$1分钟");
+        },
+    },
     watch: {},
     created() {
         this.onRefresh();
@@ -214,13 +235,18 @@ export default {
             return formatTime(time);
         },
         GetbasicInfo: function () {
-            basicInfo()
-                .then((res) => {
-                    this.userInfo = res.payload.userinfo;
-                    this.userInfo.password = "●●●●●●●●●";
-                    this.loading = false;
-                })
-                .catch(() => {});
+            withDelay(() =>
+                basicInfo()
+                    .then((res) => {
+                        this.userInfo = res.payload.userinfo;
+                        this.userInfo.password = "●●●●●●●●●";
+                        this.loading = false;
+                    })
+                    .catch(() => {}),
+            );
+        },
+        OpenSIT() {
+            this.$refs.Sit.OpenSitDialog();
         },
         CreateVmfa: async function () {
             const res = await CreateVmfa();
@@ -256,16 +282,13 @@ export default {
         },
         // 查询账号关闭状态
         loadGetAccountShutState: async function () {
-            const res = await GetAccountShutState();
+            const res = await withDelay(() => GetAccountShutState());
             this.accountShutState = res.payload;
         },
         onRefresh() {
             this.loading = true;
-            clearTimeout(this.timeoutId);
-            this.timeoutId = setTimeout(() => {
-                this.GetbasicInfo();
-                this.loadGetAccountShutState();
-            }, 350);
+            this.GetbasicInfo();
+            this.loadGetAccountShutState();
         },
         onOpenBindVmfa() {
             this.CreateVmfa();

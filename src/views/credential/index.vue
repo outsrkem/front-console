@@ -29,7 +29,7 @@
             </div>
 
             <div>
-                <el-table :data="tableData" style="width: 100%" v-loading="loading" element-loading-text="加载中" element-loading-spinner="el-icon-loading">
+                <el-table :data="tableData" style="width: 100%" v-loading="loading">
                     <el-table-column prop="access" label="密钥ID">
                         <template #default="scope">
                             <span class="access-text">{{ scope.row.access }}</span>
@@ -174,11 +174,12 @@
 </template>
 
 <script>
-import { Refresh } from "@element-plus/icons-vue";
-import { msgcon } from "@/utils/message.js";
-import { RemoveFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
-import { formatTime } from "@/utils/date.js";
+import { Refresh, RemoveFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
 import { GetCredential, DeleteCredential, EditCredential, CreateCredential } from "@/api/index.js";
+import { msgcon } from "@/utils/message.js";
+import { formatTime } from "@/utils/date.js";
+import { withDelay } from "../../utils/common.js";
+
 export default {
     name: "CredentialIndex",
     components: {
@@ -196,7 +197,6 @@ export default {
             quota: 0,
             tableData: [],
             loading: true,
-            timeoutId: null,
             // 编辑
             editDialogVisible: false,
             editForm: {
@@ -235,16 +235,18 @@ export default {
             return formatTime(time);
         },
         loadGetCredential: function () {
-            GetCredential()
-                .then((res) => {
-                    this.tableData = res.payload.items;
-                    this.quota = res.payload.quota;
-                    this.buttonDisable = this.quota > this.tableData.length ? false : true;
-                    this.loading = false;
-                })
-                .catch(() => {
-                    this.loading = false;
-                });
+            withDelay(() =>
+                GetCredential()
+                    .then((res) => {
+                        this.tableData = res.payload.items;
+                        this.quota = res.payload.quota;
+                        this.buttonDisable = this.quota > this.tableData.length ? false : true;
+                        this.loading = false;
+                    })
+                    .catch(() => {
+                        this.loading = false;
+                    }),
+            );
         },
         loadDeleteCredential: function (access) {
             const data = { credential: { access: access } };
@@ -298,10 +300,7 @@ export default {
         },
         onRefresh() {
             this.loading = true;
-            clearTimeout(this.timeoutId);
-            this.timeoutId = setTimeout(() => {
-                this.loadGetCredential();
-            }, 350);
+            this.loadGetCredential();
         },
         onEditCredential(val) {
             this.editDialogVisible = true;

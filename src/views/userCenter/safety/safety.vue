@@ -13,18 +13,12 @@
             <div v-if="pages.step1" style="width: 100%; display: flex; justify-content: center">
                 <div style="width: 42%">
                     <div style="text-align: center">
-                        <h5>为了您的账号安全，请完成以下验证。</h5>
+                        <h5>为保障账号安全，请完成以下验证。</h5>
                     </div>
                     <el-form :model="fromData" label-width="auto" label-position="left">
                         <el-form-item label="请选择验证方式">
                             <el-select v-model="fromData.device">
-                                <el-option
-                                    v-for="item in devices"
-                                    :key="item.name"
-                                    :label="item.title"
-                                    :value="item.name"
-                                    :disabled="item.disabled"
-                                />
+                                <el-option v-for="item in devices" :key="item.name" :label="item.title" :value="item.name" :disabled="item.disabled" />
                             </el-select>
                         </el-form-item>
                         <el-form-item label="请输入验证码" style="margin-bottom: 0px">
