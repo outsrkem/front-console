@@ -4,18 +4,12 @@
             <div style="width: 100%; display: flex; justify-content: center; padding-bottom: 16px">
                 <div style="width: 85%">
                     <div style="text-align: center">
-                        <h3 style="margin-top: 0px"><el-text type="danger">为了您的账号安全，请完成以下验证。</el-text></h3>
+                        <h3 style="margin-top: 0px"><el-text type="danger">为保障账号安全，请完成以下验证。</el-text></h3>
                     </div>
                     <el-form :model="fromData" label-width="auto" label-position="left">
                         <el-form-item label="请选择验证方式">
                             <el-select v-model="fromData.device">
-                                <el-option
-                                    v-for="item in devices"
-                                    :key="item.name"
-                                    :label="item.title"
-                                    :value="item.name"
-                                    :disabled="item.disabled"
-                                />
+                                <el-option v-for="item in devices" :key="item.name" :label="item.title" :value="item.name" :disabled="item.disabled" />
                             </el-select>
                         </el-form-item>
                         <el-form-item label="请输入验证码" style="margin-bottom: 0px">

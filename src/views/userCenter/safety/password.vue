@@ -18,9 +18,7 @@
                     </div>
                     <div style="display: flex; justify-content: flex-end">
                         <el-button style="width: 100px" @click="onCance()">取消</el-button>
-                        <el-button style="width: 100px" type="primary" :disabled="SubmitDisabled" :loading="SubmitLoading" @click="onSubmit()"
-                            >确认</el-button
-                        >
+                        <el-button style="width: 100px" type="primary" :disabled="SubmitDisabled" :loading="SubmitLoading" @click="onSubmit()">确认</el-button>
                     </div>
                 </el-form>
             </div>
