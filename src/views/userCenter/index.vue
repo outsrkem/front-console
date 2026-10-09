@@ -46,7 +46,7 @@
                                 <span style="margin-left: 5px">未绑定</span>
                             </el-text>
                         </span>
-                        <span v-if="userInfo.mobile !== ''">
+                        <span v-else>
                             <el-text class="value">
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
                                 <span style="margin-left: 5px">{{ userInfo.mobile }}</span>
@@ -62,7 +62,7 @@
                             </el-text>
                             <el-button link type="primary" @click="onUpdateEmail()">绑定</el-button>
                         </span>
-                        <span v-if="userInfo.email !== ''">
+                        <span v-else>
                             <el-text class="value">
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
                                 <span style="margin-left: 5px">{{ userInfo.email }}</span>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="line-row">
                         <el-text class="title">虚拟MFA</el-text>
-                        <span v-if="userInfo.vmfa !== ''">
+                        <span v-if="userInfo.vmfa">
                             <el-text class="value">
                                 <el-icon class="success-color"><SuccessFilled /></el-icon>
                                 <span style="margin-left: 5px">{{ userInfo.vmfa }}</span>
@@ -141,7 +141,8 @@
             </div>
         </el-card>
     </div>
-    <!-- 绑定vmfa弹出 -->
+
+    <!-- Bind VMFA dialog -->
     <el-dialog v-model="dialogVisible" :close-on-click-modal="false" title="绑定VMFA" width="300">
         <div style="display: flex; justify-content: center; padding: 10px">
             <div style="width: 200px">
@@ -160,21 +161,21 @@
                         @input="form.bindVmfaCaptcha = form.bindVmfaCaptcha.trim()" />
                 </div>
                 <div>
-                    <el-button style="width: 100%" type="primary" @click="BindVmfa()">绑定VMFA设备</el-button>
+                    <el-button style="width: 100%" type="primary" :loading="vmfaSubmitting" @click="submitBindVmfa">绑定VMFA设备</el-button>
                 </div>
             </div>
         </div>
     </el-dialog>
 
-    <!-- 修改会话超时弹窗 -->
+    <!-- Session idle timeout dialog -->
     <Sit ref="Sit" :idle-timeout-str="userInfo.session_idle_timeout" @update:idle-timeout-str="userInfo.session_idle_timeout = $event" />
 
-    <!-- 注销关闭账号 -->
-    <CancelAccount ref="CancelAccount" :vdata="accountShutData"></CancelAccount>
+    <!-- Cancel / shut account dialog -->
+    <CancelAccount ref="CancelAccount" :vdata="accountShutData" />
 </template>
 
 <script>
-import { QuestionFilled, WarningFilled, SuccessFilled } from "@element-plus/icons-vue";
+import { QuestionFilled, WarningFilled, SuccessFilled, Clock } from "@element-plus/icons-vue";
 import { basicInfo, CreateVmfa, BindVmfa, GetAccountShutState } from "../../api/index.js";
 import { msgcon } from "../../utils/message.js";
 import { formatTime } from "../../utils/date.js";
@@ -189,6 +190,7 @@ export default {
         QuestionFilled,
         WarningFilled,
         SuccessFilled,
+        Clock,
         CancelAccount,
         SvgQrcode,
         Sit,
@@ -203,9 +205,9 @@ export default {
             cancelmsg:
                 "如果您不再使用此账号，可以将其注销，账号注销后，数据会被删除且无法恢复。\
             注销包括关闭账号、注销账号两步。",
-            vmfa: false, // 用于显示vmfa是否绑定
-            dialogVisible: false, // 绑定vmfa的弹窗
+            dialogVisible: false,
             vmfaUrl: "",
+            vmfaSubmitting: false,
             form: {
                 bindVmfaCaptcha: "",
             },
@@ -225,7 +227,6 @@ export default {
             return val.replace(/([0-9]+)h/g, "$1小时").replace(/([0-9]+)m/g, "$1分钟");
         },
     },
-    watch: {},
     created() {
         this.onRefresh();
         this.$globalBus.emit("updateActivePath", "/accountInfo");
@@ -234,109 +235,116 @@ export default {
         formatDate(time) {
             return formatTime(time);
         },
-        GetbasicInfo: function () {
-            withDelay(() =>
-                basicInfo()
-                    .then((res) => {
-                        this.userInfo = res.payload.userinfo;
-                        this.userInfo.password = "●●●●●●●●●";
-                        this.loading = false;
-                    })
-                    .catch(() => {}),
-            );
+
+        getErrMsg(err) {
+            return err?.data?.metadata?.message || "";
         },
+
+        onRefresh() {
+            this.loading = true;
+            Promise.all([this.GetbasicInfo(), this.loadGetAccountShutState()]).finally(() => {
+                this.loading = false;
+            });
+        },
+
+        async GetbasicInfo() {
+            const res = await withDelay(() => basicInfo());
+            this.userInfo = res.payload.userinfo;
+            this.userInfo.password = "●●●●●●●●●";
+        },
+
+        async loadGetAccountShutState() {
+            const res = await withDelay(() => GetAccountShutState());
+            this.accountShutState = res.payload;
+        },
+
         OpenSIT() {
             this.$refs.Sit.OpenSitDialog();
         },
-        CreateVmfa: async function () {
-            const res = await CreateVmfa();
-            this.vmfaUrl = res.payload.vmfa.totp.url;
-            this.dialogVisible = true; // 打开绑定vmfa对话框
+
+        onOpenBindVmfa() {
+            this.loadVmfaQrcode();
         },
-        BindVmfa: function () {
+        async loadVmfaQrcode() {
+            try {
+                const res = await withDelay(() => CreateVmfa());
+                this.vmfaUrl = res.payload.vmfa.totp.url;
+                this.form.bindVmfaCaptcha = "";
+                this.dialogVisible = true;
+            } catch (err) {
+                this.$message.error(msgcon("获取二维码失败" + this.getErrMsg(err)));
+            }
+        },
+        async submitBindVmfa() {
             const captcha = this.form.bindVmfaCaptcha;
             if (!captcha) {
                 this.$message.warning(msgcon("请输入验证码"));
                 return;
             }
-            const reg = /^[0-9]{6}$/;
-            if (!reg.test(captcha)) {
+            if (!/^[0-9]{6}$/.test(captcha)) {
                 this.$message.warning(msgcon("验证码必须为6位数字"));
                 return;
             }
-            const data = {
-                vmfa: { totp: { captcha: captcha } },
-            };
-            BindVmfa(data)
-                .then(() => {
-                    this.$notify({ title: "绑定成功", duration: 2000, type: "success" });
-                    this.dialogVisible = false;
-                    this.onRefresh();
-                    this.form.bindVmfaCaptcha = "";
-                })
-                .catch((err) => {
-                    let msg = err.data?.metadata || "绑定验证码校验失败";
-                    console.log(err);
-                    this.$notify({ title: "绑定失败", duration: 9000, message: msg, type: "warning" });
+            this.vmfaSubmitting = true;
+            const data = { vmfa: { totp: { captcha } } };
+            try {
+                await withDelay(() => BindVmfa(data));
+                this.$notify({ title: "绑定成功", duration: 2000, type: "success" });
+                this.dialogVisible = false;
+                this.form.bindVmfaCaptcha = "";
+                this.onRefresh();
+            } catch (err) {
+                this.$notify({
+                    title: "绑定失败",
+                    duration: 9000,
+                    message: this.getErrMsg(err) || "绑定验证码校验失败",
+                    type: "warning",
                 });
-        },
-        // 查询账号关闭状态
-        loadGetAccountShutState: async function () {
-            const res = await withDelay(() => GetAccountShutState());
-            this.accountShutState = res.payload;
-        },
-        onRefresh() {
-            this.loading = true;
-            this.GetbasicInfo();
-            this.loadGetAccountShutState();
-        },
-        onOpenBindVmfa() {
-            this.CreateVmfa();
-        },
-        onBindVmfa() {
-            this.BindVmfa();
+            } finally {
+                this.vmfaSubmitting = false;
+            }
         },
         onResetVmfa() {
-            //解绑vmaf按钮
             this.$router.push({ name: "safety", query: { type: "vmfa" } });
         },
+
         onChangePassword() {
-            // 修改密码按钮
             this.$router.push({ name: "safety", query: { type: "password" } });
         },
         onUpdateEmail() {
-            /// 更新或绑定邮箱
             this.$router.push({ name: "safety", query: { type: "email" } });
         },
         onSwitchSip() {
             this.$router.push({ name: "safety", query: { type: "sip" } });
         },
+
+        openCancelAccountDialog(config) {
+            this.accountShutData = config;
+            this.$refs.CancelAccount.openDeleteUserDialog();
+        },
         onShutAccount() {
-            this.accountShutData = {
+            this.openCancelAccountDialog({
                 mark: "shut",
                 captchaKey: "SHOU_ACCOUNT",
                 title: "关闭账号",
                 submitTxt: "确认关闭",
-            };
-            this.$refs.CancelAccount.openDeleteUserDialog();
+            });
         },
         onRevocationShut() {
-            this.accountShutData = {
+            this.openCancelAccountDialog({
                 mark: "revocation",
                 captchaKey: "REVOCATION_SHUT",
                 title: "撤销关闭账号",
                 submitTxt: "确认撤销",
-            };
-            this.$refs.CancelAccount.openDeleteUserDialog();
+            });
         },
         onCancelAccount() {
-            this.accountShutData = {
+            this.openCancelAccountDialog({
                 mark: "cancel",
                 captchaKey: "CANCEL_ACCOUNT",
                 title: "注销账号",
                 submitTxt: "确认注销",
-            };
-            this.$refs.CancelAccount.openDeleteUserDialog();
+            });
         },
     },
 };
@@ -354,9 +362,6 @@ export default {
 .value {
     display: inline-block;
     width: 230px;
-}
-.line-row {
-    margin-bottom: 0px;
 }
 .success-color {
     color: #5cb300;
